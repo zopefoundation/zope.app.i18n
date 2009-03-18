@@ -2,7 +2,7 @@
 CHANGES
 =======
 
-3.5.1 (unreleased)
+3.6.0 (2009-03-18)
 ------------------
 
 - Some of ZCML configuration was moved into another packages:
@@ -16,6 +16,12 @@ CHANGES
      available.
    * The IUserPreferredCharsets adapter registration was also moved into
      ``zope.publisher``.
+
+- Depend on zope.component >= 3.6 instead of zope.app.component as the
+  `queryNextUtility` function was moved there. 
+
+- Remove the old ``zope.app.i18n.metadirectives`` module as the directive was
+  moved to ``zope.i18n`` ages ago.
 
 3.5.0 (2009-02-01)
 ------------------

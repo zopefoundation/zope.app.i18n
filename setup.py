@@ -24,10 +24,10 @@ def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
 setup(name='zope.app.i18n',
-    version = '3.5.1dev',
+    version = '3.6.0',
     author='Zope Corporation and Contributors',
     author_email='zope-dev@zope.org',
-    description='Zope i18n',
+    description='Persistent translation domains and message catalogs',
     long_description=(
         read('README.txt')
         + '\n\n' +
@@ -51,9 +51,8 @@ setup(name='zope.app.i18n',
     namespace_packages=['zope', 'zope.app'],
     extras_require = dict(test=['zope.app.testing']),
     install_requires=['setuptools',
-                      'zope.app.component',
                       'zope.app.publisher',
-                      'zope.component',
+                      'zope.component>=3.6',
                       'zope.container',
                       'zope.configuration',
                       'zope.i18n',
