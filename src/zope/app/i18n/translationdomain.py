@@ -23,7 +23,6 @@ from BTrees.OOBTree import OOBTree
 import zope.component
 from zope.interface import implements
 from zope.i18n import interpolate
-from zope.i18n.negotiator import negotiator
 from zope.i18n.interfaces import INegotiator, ITranslationDomain
 from zope.i18n.simpletranslationdomain import SimpleTranslationDomain
 
@@ -71,7 +70,10 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
             target_language = negotiator.getLanguage(avail_langs, context)
 
         # Get the translation. Default is the source text itself.
-        catalog_names = self._catalogs.get(target_language, [])
+        if target_language is not None:
+            catalog_names = self._catalogs.get(target_language, [])
+        else:
+            catalog_names = []
 
         for name in catalog_names:
             catalog = super(TranslationDomain, self).__getitem__(name)

@@ -5,8 +5,7 @@ CHANGES
 3.6.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Fix translate() when used with ZODB 4.
 
 3.6.3 (2010-09-01)
 ------------------
