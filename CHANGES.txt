@@ -6,6 +6,7 @@ CHANGES
 ------------------
 
 - Fix translate() when used with ZODB 4.
+- Remove test dependency on zope.app.component
 
 3.6.3 (2010-09-01)
 ------------------

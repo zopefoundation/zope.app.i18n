@@ -26,15 +26,13 @@ from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.tests.test_itranslationdomain import TestITranslationDomain
 from zope.i18n.translationdomain \
      import TranslationDomain as GlobalTranslationDomain
-from zope.interface import implements, classImplements
+from zope.interface import implements
 from zope.interface.verify import verifyObject
-from zope.annotation.interfaces import IAttributeAnnotatable
 from zope.traversing.api import traverse
 
 from zope.app.i18n import interfaces
 from zope.app.i18n.messagecatalog import MessageCatalog
 from zope.app.i18n.translationdomain import TranslationDomain
-from zope.app.component.testing import PlacefulSetup
 from zope.app.testing import setup, ztapi
 
 
@@ -182,17 +180,20 @@ class TestISyncTranslationDomain(object):
 class TestTranslationDomain(TestITranslationDomain,
                             TestISyncTranslationDomain,
                             TestILocalTranslationDomain,
-                            PlacefulSetup,
                             unittest.TestCase):
 
 
     def setUp(self):
-        classImplements(TranslationDomain, IAttributeAnnotatable)
-        self.sm = PlacefulSetup.setUp(self, site=True)
         TestITranslationDomain.setUp(self)
 
+        # placefulSetup
+        setup.setUpTraversal()
+        setup.setUpSiteManagerLookup()
+        self.rootFolder = setup.buildSampleFolderTree()
+
+        self.sm = setup.createSiteManager(self.rootFolder, setsite=True)
         setup.addUtility(self.sm, 'default', ITranslationDomain, self._domain)
-        
+
         ztapi.provideUtility(IFactory, Factory(MessageCatalog),
                              'zope.app.MessageCatalog')
 
