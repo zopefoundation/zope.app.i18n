@@ -19,6 +19,7 @@ import unittest
 import doctest
 
 from zope.component import getGlobalSiteManager
+from zope.component import provideUtility
 from zope.component.interfaces import IFactory
 from zope.component.factory import Factory
 from zope.i18n.interfaces import ITranslationDomain
@@ -33,7 +34,7 @@ from zope.traversing.api import traverse
 from zope.app.i18n import interfaces
 from zope.app.i18n.messagecatalog import MessageCatalog
 from zope.app.i18n.translationdomain import TranslationDomain
-from zope.app.testing import setup, ztapi
+from zope.app.testing import setup
 
 
 class Environment(object):
@@ -194,9 +195,8 @@ class TestTranslationDomain(TestITranslationDomain,
         self.sm = setup.createSiteManager(self.rootFolder, setsite=True)
         setup.addUtility(self.sm, 'default', ITranslationDomain, self._domain)
 
-        ztapi.provideUtility(IFactory, Factory(MessageCatalog),
-                             'zope.app.MessageCatalog')
-
+        provideUtility(Factory(MessageCatalog), IFactory,
+                       'zope.app.MessageCatalog')
 
     def _getTranslationDomain(self):
         domain = TranslationDomain()

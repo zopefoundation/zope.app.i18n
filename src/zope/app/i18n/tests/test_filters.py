@@ -21,10 +21,10 @@ import time
 from cStringIO import StringIO
 from zope.interface import implements
 
-from zope.app.testing import ztapi
-from zope.app.testing.placelesssetup import PlacelessSetup
+from zope.component.testing import PlacelessSetup
 from zope.component.interfaces import IFactory
 from zope.component.factory import Factory
+from zope.component import provideUtility
 
 from zope.app.i18n.messagecatalog import MessageCatalog
 from zope.i18n.negotiator import negotiator
@@ -69,12 +69,12 @@ msgstr "hallo"
         super(TestGettextExportImport, self).setUp()
 
         # Setup the negotiator utility
-        ztapi.provideUtility(INegotiator, negotiator)
+        provideUtility(negotiator, INegotiator)
 
         self._domain = TranslationDomain()
         self._domain.domain = 'default'
-        ztapi.provideUtility(IFactory, Factory(MessageCatalog),
-                             'zope.app.MessageCatalog')
+        provideUtility(Factory(MessageCatalog), IFactory,
+                       'zope.app.MessageCatalog')
 
     def testImportExport(self):
         imp = GettextImportFilter(self._domain)

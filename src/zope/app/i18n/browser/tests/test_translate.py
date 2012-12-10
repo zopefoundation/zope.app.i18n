@@ -18,10 +18,10 @@ $Id$
 import unittest
 from StringIO import StringIO
 
-from zope.app.testing.placelesssetup import PlacelessSetup
-from zope.app.testing import ztapi
+from zope.component.testing import PlacelessSetup
 from zope.component.interfaces import IFactory
 from zope.component.factory import Factory
+from zope.component import provideAdapter, provideUtility
 
 from zope.app.i18n.browser.translate import Translate
 from zope.app.i18n.translationdomain import TranslationDomain
@@ -46,11 +46,10 @@ class TranslateTest(PlacelessSetup, unittest.TestCase):
         super(TranslateTest, self).setUp()
 
         # Setup the registries
-        ztapi.provideAdapter(IHTTPRequest, IUserPreferredCharsets,
-                             HTTPCharsets)
+        provideAdapter(HTTPCharsets, (IHTTPRequest,), IUserPreferredCharsets)
 
-        ztapi.provideUtility(IFactory, Factory(MessageCatalog),
-                             'zope.app.MessageCatalog')
+        provideUtility(Factory(MessageCatalog), IFactory,
+                       'zope.app.MessageCatalog')
 
         domain = TranslationDomain()
         domain.domain = 'default'
