@@ -2,7 +2,7 @@
 CHANGES
 =======
 
-3.6.4 (unreleased)
+3.6.4 (2012-12-14)
 ------------------
 
 - Fix translate() when used with ZODB 4.
