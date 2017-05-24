@@ -133,20 +133,16 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
 
     def getAllLanguages(self):
         'See `IWriteTranslationDomain`'
-        languages = {}
-        for key in self._catalogs.keys():
-            languages[key] = None
-        return languages.keys()
-
+        return sorted(self._catalogs)
 
     def getAvailableLanguages(self):
         'See `IWriteTranslationDomain`'
-        return list(self._catalogs.keys())
+        return self.getAllLanguages()
 
 
     def addMessage(self, msgid, msg, language, mod_time=None):
         'See `IWriteTranslationDomain`'
-        if not self._catalogs.has_key(language):
+        if language not in self._catalogs:
             if language not in self.getAllLanguages():
                 self.addLanguage(language)
 

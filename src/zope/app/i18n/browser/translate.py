@@ -43,7 +43,7 @@ class Translate(BaseView):
     def editMessage(self):
         msg_id = self.request['msg_id']
         for language in self.getEditLanguages():
-            msg = self.request['msg_lang_%s' %language]
+            msg = self.request['msg_lang_%s' % language]
             if msg != self.context.translate(msg_id,
                                              target_language=language):
                 self.context.updateMessage(msg_id, msg, language)

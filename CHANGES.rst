@@ -11,6 +11,9 @@ CHANGES
 
 - Drop test dependency on ``zope.app.testing``.
 
+- The synchronization view now uses Python's built-in transport for
+  handling Basic Authentication. This means that the username and
+  password should not contain a ``:``.
 
 3.6.4 (2012-12-14)
 ------------------

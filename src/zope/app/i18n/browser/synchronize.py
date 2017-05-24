@@ -28,8 +28,14 @@ except ImportError:
 
 try:
     from urllib import unquote
+    from urllib import quote
+    from urlparse import urlparse
+    from urlparse import urlunparse
 except ImportError:
     from urllib.parse import unquote
+    from urllib.parse import quote
+    from urllib.parse import urlparse
+    from urllib.parse import urlunparse
 
 from base64 import encodestring
 
@@ -49,7 +55,8 @@ class Synchronize(BaseView):
                      _('Newer Local'), _('Does not exist')]
 
     def __init__(self, context, request):
-        super(Synchronize, self).__init__(context, request)
+        self.context = context
+        self.request = request
 
         self.sync_url = self.request.cookies.get(
             'sync_url', DEFAULT)
@@ -60,25 +67,32 @@ class Synchronize(BaseView):
             'sync_languages', '').split(','))
         self._connection = None
 
+    def _make_sync_url(self):
+        # make sure the URL contains the http:// prefix
+        url = self.sync_url
+        if not url.startswith(('http://', 'https://')):
+            url = 'http://' + url
+
+        # Add username and password to the url.
+        parts = urlparse(url)
+        if '@' not in parts.netloc:
+            parts = list(parts)
+            parts[1] = self.sync_username + ':' + self.sync_password + '@' + parts[1]
+            url = urlunparse(parts)
+
+        return url
 
     def _connect(self):
         '''Connect to the remote server via XML-RPC HTTP; return status'''
-        # make sure the URL contains the http:// prefix
-        if not self.sync_url.startswith('http://'):
-            url = 'http://' + self.sync_url
-        else:
-            url = self.sync_url
 
         # Now try to connect
-        self._connection = Server(url,
-                                  transport=BasicAuthTransport(self.sync_username,
-                                                               self.sync_password))
+        self._connection = Server(self._make_sync_url())
 
         # check whether the connection was made and the Master Babel Tower
         # exists
         try:
             self._connection.getAllLanguages()
-            return 1
+            return 1 # pragma: no cover
         except Exception:
             self._connection = None
             return 0
@@ -91,22 +105,15 @@ class Synchronize(BaseView):
         '''Check whether we are currently connected to the server; return
         boolean'''
 
-        if self._connection is not None and self._connection.getAllLanguages():
-            return True
-        return False
-
+        return bool(self._connection is not None and self._connection.getAllLanguages())
 
     def canConnect(self):
         '''Checks whether we can connect using this server and user data;
         return boolean'''
         if self._isConnected():
-            return 1
+            return True
 
-        try:
-            return self._connect()
-        except Exception:
-            return 0
-
+        return self._connect()
 
     def getAllLanguages(self):
         connected = self._isConnected()
@@ -117,15 +124,13 @@ class Synchronize(BaseView):
         return []
 
 
-
     def queryMessages(self):
         connected = self._isConnected()
         if not connected: connected = self._connect()
 
+        fmsgs = []
         if connected:
             fmsgs = self._connection.getMessagesFor(self.sync_languages)
-        else:
-            fmsgs = []
 
         return self.context.getMessagesMapping(self.sync_languages,
                                                fmsgs)
@@ -133,8 +138,7 @@ class Synchronize(BaseView):
     def queryMessageItems(self):
         items = self.queryMessages().items()
         items = removeSecurityProxy(items)
-        items.sort(key=lambda x: x[0][0] + x[0][1])
-        return items
+        return sorted(items, key=lambda x: x[0][0] + x[0][1])
 
     def getStatus(self, fmsg, lmsg, verbose=1):
         state = 0
@@ -149,24 +153,21 @@ class Synchronize(BaseView):
         elif fmsg['mod_time'] == lmsg['mod_time']:
             state = 0
 
-        if verbose:
-            return self.messageStatus[state]
-        return state
-
+        return self.messageStatus[state] if verbose else state
 
     def saveSettings(self):
         self.sync_languages = self.request.form.get('sync_languages', [])
         self.request.response.setCookie('sync_languages',
-                                             ','.join(self.sync_languages))
+                                        ','.join(self.sync_languages))
         self.request.response.setCookie('sync_url',
-                            urllib.quote(self.request['sync_url']).strip())
+                                        quote(self.request['sync_url']).strip())
         self.request.response.setCookie('sync_username',
-                                             self.request['sync_username'])
+                                        self.request['sync_username'])
         self.request.response.setCookie('sync_password',
-                                             self.request['sync_password'])
+                                        self.request['sync_password'])
 
-        return self.request.response.redirect(self.request.URL[-1]+
-                                                   '/@@synchronizeForm.html')
+        return self.request.response.redirect(self.request.URL[-1] +
+                                              '/@@synchronizeForm.html')
 
 
     def synchronize(self):
@@ -192,45 +193,3 @@ class Synchronize(BaseView):
         self.context.synchronize(new_mapping)
         return self.request.response.redirect(self.request.URL[-1]+
                                                    '/@@synchronizeForm.html')
-
-
-
-class BasicAuthTransport(Transport):
-    def __init__(self, username=None, password=None, verbose=0):
-        self.username=username
-        self.password=password
-        self.verbose=verbose
-
-    def request(self, host, handler, request_body, verbose=0):
-        # issue XML-RPC request
-
-        self.verbose = verbose
-
-        h = httplib.HTTP(host)
-        h.putrequest("POST", handler)
-
-        # required by HTTP/1.1
-        h.putheader("Host", host)
-
-        # required by XML-RPC
-        h.putheader("User-Agent", self.user_agent)
-        h.putheader("Content-Type", "text/xml")
-        h.putheader("Content-Length", str(len(request_body)))
-
-        # basic auth
-        if self.username is not None and self.password is not None:
-            h.putheader("AUTHORIZATION", "Basic %s" %
-                        encodestring("%s:%s" % (self.username, self.password)
-                                     ).replace("\012", ""))
-        h.endheaders()
-
-        if request_body:
-            h.send(request_body)
-
-        errcode, errmsg, headers = h.getreply()
-
-        if errcode != 200:
-            raise ProtocolError(host + handler,
-                                errcode, errmsg, headers)
-
-        return self.parse_response(h.getfile())
