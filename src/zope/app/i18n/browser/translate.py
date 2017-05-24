@@ -13,7 +13,6 @@
 ##############################################################################
 """Translation GUI
 
-$Id$
 """
 __docformat__ = 'restructuredtext'
 
@@ -62,9 +61,8 @@ class Translate(BaseView):
                     self.context.addMessage(msg_id, msg, language)
 
         # Handle edited Messages
-        keys = filter(lambda k: k.startswith('edit-msg_id-'),
-                      self.request.keys())
-        keys = map(lambda k: k[12:], keys)
+        keys = [k[12:] for k in self.request.keys()
+                if k.startswith('edit-msg_id-')]
         for key in keys:
             msg_id = self.request['edit-msg_id-'+key]
             for language in self.getEditLanguages():
@@ -93,7 +91,7 @@ class Translate(BaseView):
         return self.request.response.redirect(self.request.URL[-1])
 
 
-    def changeEditLanguages(self, languages=[]):
+    def changeEditLanguages(self, languages=()):
         self.request.response.setCookie('edit_languages',
                                         ','.join(languages))
         return self.request.response.redirect(self.request.URL[-1])

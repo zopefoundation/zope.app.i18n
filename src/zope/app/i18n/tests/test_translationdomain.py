@@ -13,13 +13,13 @@
 ##############################################################################
 """This module tests the regular persistent Translation Domain.
 
-$Id$
 """
 import unittest
 import doctest
 
 from zope.component import getGlobalSiteManager
 from zope.component import provideUtility
+from zope.component import provideAdapter
 from zope.component.interfaces import IFactory
 from zope.component.factory import Factory
 from zope.i18n.interfaces import ITranslationDomain
@@ -27,19 +27,30 @@ from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.tests.test_itranslationdomain import TestITranslationDomain
 from zope.i18n.translationdomain \
      import TranslationDomain as GlobalTranslationDomain
-from zope.interface import implements
+from zope.interface import implementer
 from zope.interface.verify import verifyObject
 from zope.traversing.api import traverse
+
+
+from zope.app.component.testing import PlacefulSetup
+from zope.app.component.testing import setUpTraversal
+from zope.app.component.testing import createSiteManager
+
 
 from zope.app.i18n import interfaces
 from zope.app.i18n.messagecatalog import MessageCatalog
 from zope.app.i18n.translationdomain import TranslationDomain
-from zope.app.testing import setup
 
+from zope.site.site import SiteManagerAdapter
+from zope.component.interfaces import IComponentLookup
+from zope.interface import Interface
 
+def setUpSiteManagerLookup():
+    provideAdapter(SiteManagerAdapter, (Interface,),
+                   IComponentLookup)
+
+@implementer(IUserPreferredLanguages)
 class Environment(object):
-
-    implements(IUserPreferredLanguages)
 
     def __init__(self, langs=()):
         self.langs = langs
@@ -47,8 +58,7 @@ class Environment(object):
     def getPreferredLanguages(self):
         return self.langs
 
-
-class TestILocalTranslationDomain(object):
+class AbstractTestILocalTranslationDomainMixin(object):
 
     def _getTranslationDomain(self):
         """This should be overwritten by every clas that inherits this test.
@@ -56,6 +66,7 @@ class TestILocalTranslationDomain(object):
            We expect the TranslationDomain to contain exactly 2 languages:
            de and en
         """
+        raise NotImplementedError()
 
     def setUp(self):
         self._domain = self._getTranslationDomain()
@@ -64,8 +75,7 @@ class TestILocalTranslationDomain(object):
         verifyObject(ITranslationDomain, self._domain)
 
     def _getLanguages(self, domain):
-        languages = domain.getAllLanguages()
-        languages.sort()
+        languages = sorted(domain.getAllLanguages())
         return languages
 
     def testGetAddDeleteLanguage(self):
@@ -100,7 +110,7 @@ class TestILocalTranslationDomain(object):
 
 
 # A test mixing -- don't add this to the suite
-class TestISyncTranslationDomain(object):
+class AbstractTestISyncTranslationDomainMixin(object):
 
     foreign_messages = [
         # Message that is not locally available
@@ -135,7 +145,7 @@ class TestISyncTranslationDomain(object):
 
     # This should be overwritten by every clas that inherits this test
     def _getTranslationDomain(self):
-        pass
+        raise NotImplementedError()
 
 
     def setUp(self):
@@ -177,26 +187,34 @@ class TestISyncTranslationDomain(object):
         self.assertEqual(domain.getMessage('greeting', 'de'),
                          None)
 
-                            
+
 class TestTranslationDomain(TestITranslationDomain,
-                            TestISyncTranslationDomain,
-                            TestILocalTranslationDomain,
+                            AbstractTestISyncTranslationDomainMixin,
+                            AbstractTestILocalTranslationDomainMixin,
                             unittest.TestCase):
 
 
     def setUp(self):
-        TestITranslationDomain.setUp(self)
+        super(TestTranslationDomain, self).setUp()
 
         # placefulSetup
-        setup.setUpTraversal()
-        setup.setUpSiteManagerLookup()
-        self.rootFolder = setup.buildSampleFolderTree()
+        psetup = PlacefulSetup()
+        self.sm = psetup.setUp(True, True)
+        self.rootFolder = psetup.rootFolder
+        setUpSiteManagerLookup()
 
-        self.sm = setup.createSiteManager(self.rootFolder, setsite=True)
-        setup.addUtility(self.sm, 'default', ITranslationDomain, self._domain)
+        self.sm.registerUtility(self._domain, ITranslationDomain, 'default')
 
         provideUtility(Factory(MessageCatalog), IFactory,
                        'zope.app.MessageCatalog')
+
+        import zope.i18n.interfaces
+        import zope.i18n.negotiator
+        provideUtility(zope.i18n.negotiator.negotiator,
+                       zope.i18n.interfaces.INegotiator)
+
+    def tearDown(self):
+        PlacefulSetup().tearDown()
 
     def _getTranslationDomain(self):
         domain = TranslationDomain()
@@ -232,8 +250,17 @@ class TestTranslationDomain(TestITranslationDomain,
 class TestTranslationDomainInAction(unittest.TestCase):
 
     def setUp(self):
-        setup.placefulSetUp()
-        self.rootFolder = setup.buildSampleFolderTree()
+        psetup = PlacefulSetup()
+        self.sm = psetup.setUp(True, True)
+        self.rootFolder = psetup.rootFolder
+        setUpSiteManagerLookup()
+
+        import zope.i18n.interfaces
+        import zope.i18n.negotiator
+        provideUtility(zope.i18n.negotiator.negotiator,
+                       zope.i18n.interfaces.INegotiator)
+
+
         gsm = getGlobalSiteManager()
         de_catalog = MessageCatalog('de', 'default')
         de_catalog.setMessage('short_greeting', 'Hallo!', 10)
@@ -251,15 +278,15 @@ class TestTranslationDomainInAction(unittest.TestCase):
         de_catalog.setMessage('short_greeting', 'Hallo Welt!', 10)
         td['de-default-1'] = de_catalog
 
-        mgr = setup.createSiteManager(traverse(self.rootFolder, 'folder1'))
-        setup.addUtility(
-            mgr, 'default', interfaces.ILocalTranslationDomain, td)
+        mgr = createSiteManager(traverse(self.rootFolder, 'folder1'))
+        mgr['default']['default'] = td
+        mgr.registerUtility(mgr['default']['default'], ITranslationDomain, 'default')
 
         self.trans1 = td
         self.trans = domain
 
     def tearDown(self):
-        setup.placefulTearDown()
+        PlacefulSetup().tearDown()
 
     def test_translate(self):
         self.assertEqual(
@@ -275,13 +302,12 @@ class TestTranslationDomainInAction(unittest.TestCase):
             self.trans1.translate('long_greeting', context='default',
                                   target_language='de'),
             'Guten Tag!')
-        
+
 def test_suite():
     return unittest.TestSuite((
-        unittest.makeSuite(TestTranslationDomain),
+        unittest.defaultTestLoader.loadTestsFromName(__name__),
         doctest.DocTestSuite('zope.app.i18n.translationdomain'),
-        unittest.makeSuite(TestTranslationDomainInAction),
-        ))
+    ))
 
-if __name__=='__main__':
+if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')

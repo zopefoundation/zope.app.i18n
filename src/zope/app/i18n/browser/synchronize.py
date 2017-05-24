@@ -13,13 +13,24 @@
 ##############################################################################
 """Synchronize with Foreign Translation Domains
 
-$Id$
 """
 __docformat__ = 'restructuredtext'
 
-import httplib
-import urllib
-import xmlrpclib
+try:
+    import httplib
+    from xmlrpclib import Transport
+    from xmlrpclib import Server
+    from xmlrpclib import ProtocolError
+except ImportError:
+    from xmlrpc.client import Transport
+    from xmlrpc.client import ProtocolError
+    from xmlrpc.client import ServerProxy as Server
+
+try:
+    from urllib import unquote
+except ImportError:
+    from urllib.parse import unquote
+
 from base64 import encodestring
 
 import zope.i18nmessageid
@@ -42,11 +53,12 @@ class Synchronize(BaseView):
 
         self.sync_url = self.request.cookies.get(
             'sync_url', DEFAULT)
-        self.sync_url = urllib.unquote(self.sync_url)
+        self.sync_url = unquote(self.sync_url)
         self.sync_username = self.request.cookies.get('sync_username', 'admin')
         self.sync_password = self.request.cookies.get('sync_password', 'admin')
         self.sync_languages = filter(None, self.request.cookies.get(
             'sync_languages', '').split(','))
+        self._connection = None
 
 
     def _connect(self):
@@ -58,36 +70,30 @@ class Synchronize(BaseView):
             url = self.sync_url
 
         # Now try to connect
-        self._connection = xmlrpclib.Server(
-            url, transport = BasicAuthTransport(self.sync_username,
-                                                self.sync_password))
+        self._connection = Server(url,
+                                  transport=BasicAuthTransport(self.sync_username,
+                                                               self.sync_password))
 
         # check whether the connection was made and the Master Babel Tower
         # exists
         try:
             self._connection.getAllLanguages()
             return 1
-        except:
+        except Exception:
             self._connection = None
             return 0
 
-
     def _disconnect(self):
         '''Disconnect from the sever; return ``None``'''
-        if hasattr(self, '_connection') and self._connection is not None:
-            self._connection = None
-
+        self._connection = None
 
     def _isConnected(self):
         '''Check whether we are currently connected to the server; return
         boolean'''
-        if not hasattr(self, '_connection'):
-            self._connection = None
 
-        if not self._connection is None and self._connection.getAllLanguages():
-            return 1
-        else:
-            return 0
+        if self._connection is not None and self._connection.getAllLanguages():
+            return True
+        return False
 
 
     def canConnect(self):
@@ -95,11 +101,11 @@ class Synchronize(BaseView):
         return boolean'''
         if self._isConnected():
             return 1
-        else:
-            try:
-                return self._connect()
-            except:
-                return 0
+
+        try:
+            return self._connect()
+        except Exception:
+            return 0
 
 
     def getAllLanguages(self):
@@ -108,8 +114,7 @@ class Synchronize(BaseView):
 
         if connected:
             return self._connection.getAllLanguages()
-        else:
-            return []
+        return []
 
 
 
@@ -128,7 +133,7 @@ class Synchronize(BaseView):
     def queryMessageItems(self):
         items = self.queryMessages().items()
         items = removeSecurityProxy(items)
-        items.sort(lambda x, y: cmp(x[0][0] + x[0][1], y[0][0]+y[0][1]))
+        items.sort(key=lambda x: x[0][0] + x[0][1])
         return items
 
     def getStatus(self, fmsg, lmsg, verbose=1):
@@ -190,7 +195,7 @@ class Synchronize(BaseView):
 
 
 
-class BasicAuthTransport(xmlrpclib.Transport):
+class BasicAuthTransport(Transport):
     def __init__(self, username=None, password=None, verbose=0):
         self.username=username
         self.password=password
@@ -225,7 +230,7 @@ class BasicAuthTransport(xmlrpclib.Transport):
         errcode, errmsg, headers = h.getreply()
 
         if errcode != 200:
-            raise xmlrpclib.ProtocolError(host + handler,
-                                          errcode, errmsg, headers)
+            raise ProtocolError(host + handler,
+                                errcode, errmsg, headers)
 
         return self.parse_response(h.getfile())

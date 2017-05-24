@@ -13,11 +13,10 @@
 ##############################################################################
 """A simple implementation of a Message Catalog.
 
-$Id$
 """
 __docformat__ = 'restructuredtext'
 
-from zope.interface import classProvides, providedBy, implements
+from zope.interface import provider, providedBy, implementer
 import time
 
 from BTrees.OOBTree import OOBTree
@@ -25,11 +24,9 @@ from persistent import Persistent
 from zope.component.interfaces import IFactory
 from zope.app.i18n.interfaces import ILocalMessageCatalog
 
-
+@implementer(ILocalMessageCatalog)
+@provider(IFactory)
 class MessageCatalog(Persistent):
-
-    implements(ILocalMessageCatalog)
-    classProvides(IFactory)
 
     def __init__(self, language, domain="default"):
         """Initialize the message catalog"""
@@ -91,8 +88,7 @@ class MessageCatalog(Persistent):
                              'mod_time' : message[1][1]})
         return messages
 
-    def getInterfaces(self):
+    @classmethod
+    def getInterfaces(cls):
         'See `IFactory`'
-        return tuple(providedBy(self))
-
-    getInterfaces = classmethod(getInterfaces)
+        return tuple(providedBy(cls))

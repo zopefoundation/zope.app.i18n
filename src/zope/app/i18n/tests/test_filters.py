@@ -14,12 +14,11 @@
 """This module tests the Gettext Export and Import funciotnality of the
 Translation Domain.
 
-$Id$
 """
 import unittest
 import time
-from cStringIO import StringIO
-from zope.interface import implements
+from io import BytesIO
+from zope.interface import implementer
 
 from zope.component.testing import PlacelessSetup
 from zope.component.interfaces import IFactory
@@ -34,9 +33,9 @@ from zope.app.i18n.translationdomain import TranslationDomain
 from zope.app.i18n.filters import GettextImportFilter, GettextExportFilter
 
 
+@implementer(IUserPreferredLanguages)
 class Environment(object):
 
-    implements(IUserPreferredLanguages)
 
     def __init__(self, langs=()):
         self.langs = langs
@@ -47,7 +46,7 @@ class Environment(object):
 
 class TestGettextExportImport(PlacelessSetup, unittest.TestCase):
 
-    _data = '''msgid ""
+    _data = b'''msgid ""
 msgstr ""
 "Project-Id-Version: Zope 3\\n"
 "PO-Revision-Date: %s\\n"
@@ -78,7 +77,7 @@ msgstr "hallo"
 
     def testImportExport(self):
         imp = GettextImportFilter(self._domain)
-        imp.importMessages(['de'], StringIO(self._data %'2002/02/02 02:02'))
+        imp.importMessages(['de'], BytesIO(self._data % b'2002/02/02 02:02'))
 
         exp = GettextExportFilter(self._domain)
         result = exp.exportMessages(['de'])
@@ -86,13 +85,13 @@ msgstr "hallo"
         dt = time.time()
         dt = time.localtime(dt)
         dt = time.strftime('%Y/%m/%d %H:%M', dt)
-
-        self.assertEqual(result.strip(), (self._data %dt).strip())
+        if not isinstance(dt, bytes):
+            dt = dt.encode("utf-8")
+        self.assertEqual(result.strip(), (self._data % dt).strip())
 
 
 def test_suite():
-    loader = unittest.TestLoader()
-    return loader.loadTestsFromTestCase(TestGettextExportImport)
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)
 
 
 if __name__ == '__main__':

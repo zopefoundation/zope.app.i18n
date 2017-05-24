@@ -13,10 +13,9 @@
 ##############################################################################
 """Test Translation Domain 'Translate' screen.
 
-$Id$
 """
 import unittest
-from StringIO import StringIO
+from io import BytesIO
 
 from zope.component.testing import PlacelessSetup
 from zope.component.interfaces import IFactory
@@ -71,15 +70,14 @@ class TranslateTest(PlacelessSetup, unittest.TestCase):
 
     def _getRequest(self, **kw):
         kw['HTTP_HOST'] = 'foo'
-        request = BrowserRequest(StringIO(''), kw)
+        request = BrowserRequest(BytesIO(), kw)
         request._cookies = {'edit_languages': 'en,de'}
         request._traversed_names = ['foo', 'bar']
         return request
 
 
     def testGetMessages(self):
-        ids = [m[0] for m in self._view.getMessages()]
-        ids.sort()
+        ids = sorted([m[0] for m in self._view.getMessages()])
         self.assertEqual(ids, ['greeting', 'short_greeting'])
 
 
@@ -89,14 +87,12 @@ class TranslateTest(PlacelessSetup, unittest.TestCase):
 
 
     def testGetAllLanguages(self):
-        languages = self._view.getAllLanguages()
-        languages.sort()
+        languages = sorted(self._view.getAllLanguages())
         self.assertEqual(languages, ['de', 'en'])
 
 
     def testGetEditLanguages(self):
-        languages = self._view.getEditLanguages()
-        languages.sort()
+        languages = sorted(self._view.getEditLanguages())
         self.assertEqual(languages, ['de', 'en'])
 
 
@@ -107,7 +103,7 @@ class TranslateTest(PlacelessSetup, unittest.TestCase):
         self.assert_('es' not in self._view.getAllLanguages())
 
 
-class SynchronizeTest(unittest.TestCase):
+class TestSynchronize(unittest.TestCase):
 
     def test_synchronize_imports(self):
         # Trivial test that imports the module.  This would have triggered a
@@ -116,12 +112,7 @@ class SynchronizeTest(unittest.TestCase):
 
 
 def test_suite():
-    loader = unittest.TestLoader()
-    return unittest.TestSuite([
-        loader.loadTestsFromTestCase(TranslateTest),
-        loader.loadTestsFromTestCase(SynchronizeTest),
-        ])
-    return 
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)
 
-if __name__=='__main__':
+if __name__ == '__main__':
     unittest.main()

@@ -2,10 +2,14 @@
 CHANGES
 =======
 
-3.6.5 (unreleased)
+4.0.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add support for Python 3.5, 3.6 and PyPy.
+
+- Replace dependency on ``ZODB3`` with ``BTrees`` and ``persistent``.
+
+- Drop test dependency on ``zope.app.testing``.
 
 
 3.6.4 (2012-12-14)
@@ -46,7 +50,7 @@ CHANGES
      ``zope.publisher``.
 
 - Depend on zope.component >= 3.6 instead of zope.app.component as the
-  `queryNextUtility` function was moved there.
+  ``queryNextUtility`` function was moved there.
 
 - Remove the old ``zope.app.i18n.metadirectives`` module as the directive was
   moved to ``zope.i18n`` ages ago.

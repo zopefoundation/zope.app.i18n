@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2001, 2002 Zope Foundation and Contributors.
+# Copyright (c) 2017 Zope Foundation and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -11,20 +11,19 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""Translation Domain Views
-
+"""Configuration tests.
 """
-__docformat__ = 'restructuredtext'
+import unittest
 
-from zope.i18n.interfaces import ITranslationDomain
+from zope.component.testing import PlacelessSetup
+from zope.configuration import xmlconfig
 
-class BaseView(object):
+import zope.app.i18n
 
-    __used_for__ = ITranslationDomain
+class TestConfiguration(PlacelessSetup, unittest.TestCase):
 
-    context = None
-    request = None
+	def test_configure(self):
+		xmlconfig.file('ftesting.zcml', zope.app.i18n.tests)
 
-    def getAllLanguages(self):
-        """Get all available languages from the Translation Domain."""
-        return self.context.getAllLanguages()
+def test_suite():
+	return unittest.defaultTestLoader.loadTestsFromName(__name__)

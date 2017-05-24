@@ -13,17 +13,21 @@
 ##############################################################################
 """Translation Domain Message Export and Import Filters
 
-$Id$
 """
 __docformat__ = 'restructuredtext'
 
-import time, re
-from types import StringTypes
-from zope.interface import implements
+import time
+import re
+
+from zope.interface import implementer
 
 from zope.i18n.interfaces import IMessageExportFilter, IMessageImportFilter
 from zope.app.i18n.interfaces import ILocalTranslationDomain
 
+try:
+    string_types = (basestring,)
+except NameError:
+    string_types = (str,)
 
 class ParseError(Exception):
     def __init__(self, state, lineno):
@@ -35,9 +39,9 @@ class ParseError(Exception):
         return "state %s, line %s" % (self.state, self.lineno)
 
 
+@implementer(IMessageExportFilter)
 class GettextExportFilter(object):
 
-    implements(IMessageExportFilter)
     __used_for__ = ILocalTranslationDomain
 
 
@@ -48,7 +52,7 @@ class GettextExportFilter(object):
         'See IMessageExportFilter'
         domain = self.domain.domain
 
-        if isinstance(languages, StringTypes):
+        if isinstance(languages, string_types):
             language = languages
         elif len(languages) == 1:
             language = languages[0]
@@ -59,32 +63,32 @@ class GettextExportFilter(object):
         dt = time.time()
         dt = time.localtime(dt)
         dt = time.strftime('%Y/%m/%d %H:%M', dt)
-        output = _file_header %(dt, language.encode('UTF-8'),
-                                domain.encode('UTF-8'))
+        if not isinstance(dt, bytes):
+            dt = dt.encode('utf-8')
+        output = _file_header % (dt, language.encode('UTF-8'),
+                                 domain.encode('UTF-8'))
 
-        for msgid in self.domain.getMessageIds():
+        for msgid in sorted(self.domain.getMessageIds()):
             msgstr = self.domain.translate(msgid, target_language=language)
             msgstr = msgstr.encode('UTF-8')
             msgid = msgid.encode('UTF-8')
-            output += _msg_template %(msgid, msgstr)
+            output += _msg_template % (msgid, msgstr)
 
         return output
 
 
-
+@implementer(IMessageImportFilter)
 class GettextImportFilter(object):
 
-    implements(IMessageImportFilter)
     __used_for__ = ILocalTranslationDomain
-
 
     def __init__(self, domain):
         self.domain = domain
 
-    def importMessages(self, languages, file):
+    def importMessages(self, languages, data_file):
         'See IMessageImportFilter'
 
-        if isinstance(languages, StringTypes):
+        if isinstance(languages, string_types):
             language = languages
         elif len(languages) == 1:
             language = languages[0]
@@ -92,29 +96,31 @@ class GettextImportFilter(object):
             raise TypeError(
                 'Only one language at a time is supported for gettext export.')
 
-        result = parseGetText(file.readlines())[3]
-        headers = parserHeaders(''.join(result[('',)][1]))
-        del result[('',)]
-        charset = extractCharset(headers['content-type'])
+        result = parseGetText(data_file.readlines())[3]
+        headers = parserHeaders(b''.join(result[(b'',)][1]))
+        del result[(b'',)]
+        charset = extractCharset(headers[b'content-type'])
         for msg in result.items():
-            msgid = unicode(''.join(msg[0]), charset)
+            msgid = b''.join(msg[0]).decode(charset)
             msgid = msgid.replace('\\n', '\n')
-            msgstr = unicode(''.join(msg[1][1]), charset)
+            msgstr = b''.join(msg[1][1]).decode(charset)
             msgstr = msgstr.replace('\\n', '\n')
             self.domain.addMessage(msgid, msgstr, language)
 
 
 
 def extractCharset(header):
-    charset = header.split('charset=')[-1]
+    charset = header.split(b'charset=')[-1]
+    if not isinstance(charset, str):
+        charset = charset.decode('utf-8')
     return charset.lower()
 
 
-def parserHeaders(headers_text):
+def parserHeaders(headers_bytes):
     headers = {}
-    for line in headers_text.split('\\n'):
-        name = line.split(':')[0]
-        value = ''.join(line.split(':')[1:])
+    for line in headers_bytes.split(b'\\n'):
+        name = line.split(b':')[0]
+        value = b''.join(line.split(b':')[1:])
         headers[name.lower()] = value
 
     return headers
@@ -122,11 +128,11 @@ def parserHeaders(headers_text):
 
 def parseGetText(content):
     # The regular expressions
-    com = re.compile('^#.*')
-    msgid = re.compile(r'^ *msgid *"(.*?[^\\]*)"')
-    msgstr = re.compile(r'^ *msgstr *"(.*?[^\\]*)"')
-    re_str = re.compile(r'^ *"(.*?[^\\])"')
-    blank = re.compile(r'^\s*$')
+    com = re.compile(b'^#.*')
+    msgid = re.compile(br'^ *msgid *"(.*?[^\\]*)"')
+    msgstr = re.compile(br'^ *msgstr *"(.*?[^\\]*)"')
+    re_str = re.compile(br'^ *"(.*?[^\\])"')
+    blank = re.compile(br'^\s*$')
 
     trans = {}
     pointer = 0
@@ -203,7 +209,7 @@ def parseGetText(content):
     return COM, MSGID, MSGSTR, trans
 
 
-_file_header = '''
+_file_header = b'''
 msgid ""
 msgstr ""
 "Project-Id-Version: Zope 3\\n"
@@ -216,7 +222,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\\n"
 '''
 
-_msg_template = '''
+_msg_template = b'''
 msgid "%s"
 msgstr "%s"
 '''

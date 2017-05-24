@@ -5,12 +5,14 @@
 
   <!-- Translation Domain View Directives -->
 
+  <include package="zope.app.publisher" file="meta.zcml" />
+
   <xmlrpc:view
       for="zope.i18n.interfaces.ITranslationDomain"
-      permission="zope.ManageContent" 
+      permission="zope.ManageContent"
       methods="getAllLanguages getMessagesFor"
-      class=".methods.Methods" 
+      class=".methods.Methods"
       />
-      
+
 
 </configure>

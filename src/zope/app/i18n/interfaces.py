@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Placeful internationalization of content objects.
-
-$Id$
 """
 __docformat__ = 'restructuredtext'
 
@@ -145,4 +143,3 @@ class ILocalMessageCatalog(IMessageCatalog):
 
     def getMessages():
         """Get a list of all the messages."""
-
