@@ -18,7 +18,7 @@ Translation Domain.
 import unittest
 import time
 from io import BytesIO
-from zope.interface import implementer
+
 
 from zope.component.testing import PlacelessSetup
 from zope.component.interfaces import IFactory
@@ -27,26 +27,20 @@ from zope.component import provideUtility
 
 from zope.app.i18n.messagecatalog import MessageCatalog
 from zope.i18n.negotiator import negotiator
-from zope.i18n.interfaces import INegotiator, IUserPreferredLanguages
+from zope.i18n.interfaces import INegotiator
 
 from zope.app.i18n.translationdomain import TranslationDomain
-from zope.app.i18n.filters import GettextImportFilter, GettextExportFilter
-
-
-@implementer(IUserPreferredLanguages)
-class Environment(object):
-
-
-    def __init__(self, langs=()):
-        self.langs = langs
-
-    def getPreferredLanguages(self):
-        return self.langs
+from zope.app.i18n.filters import GettextImportFilter
+from zope.app.i18n.filters import GettextExportFilter
+from zope.app.i18n.filters import ParseError
+from zope.app.i18n.filters import parseGetText
 
 
 class TestGettextExportImport(PlacelessSetup, unittest.TestCase):
 
-    _data = b'''msgid ""
+    _data = b'''
+
+msgid ""
 msgstr ""
 "Project-Id-Version: Zope 3\\n"
 "PO-Revision-Date: %s\\n"
@@ -58,10 +52,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\\n"
 
 msgid "Choose"
+# comment
 msgstr "Ausw\xc3\xa4hlen!"
+# comment
 
+# comment
 msgid "greeting"
 msgstr "hallo"
+# comment
 '''
 
     def setUp(self):
@@ -77,18 +75,67 @@ msgstr "hallo"
 
     def testImportExport(self):
         imp = GettextImportFilter(self._domain)
-        imp.importMessages(['de'], BytesIO(self._data % b'2002/02/02 02:02'))
+        # Insert some extra lines and comments for the parser to skip
+        import_data = b'\n\n'.join(self._data.split(b'\n'))
+
+        imp.importMessages(['de'],
+                           BytesIO(import_data % b'2002/02/02 02:02'))
 
         exp = GettextExportFilter(self._domain)
-        result = exp.exportMessages(['de'])
+        result = exp.exportMessages('de')
 
         dt = time.time()
         dt = time.localtime(dt)
         dt = time.strftime('%Y/%m/%d %H:%M', dt)
         if not isinstance(dt, bytes):
             dt = dt.encode("utf-8")
-        self.assertEqual(result.strip(), (self._data % dt).strip())
 
+        expected = self._data.replace(b'# comment\n', b'') % dt
+        self.assertEqual(result.strip(), expected.strip())
+
+    def test_bad_export_argument(self):
+        exp = GettextExportFilter(self._domain)
+        self.assertRaises(TypeError, exp.exportMessages, ['1', '2'])
+
+class TestParseGetText(unittest.TestCase):
+
+    def setUp(self):
+        self._domain = TranslationDomain()
+        super(TestParseGetText, self).setUp()
+
+    def _check_error(self, data, state):
+        with self.assertRaises(ParseError) as exc:
+            parseGetText(data)
+
+        self.assertEqual(exc.exception.state, state)
+
+
+    def test_bad_start_state(self):
+        data = [b'bad first line']
+        self._check_error(data, 0)
+
+    def test_bad_state_after_comment(self):
+        data = [b'# comment', b'bad state']
+        self._check_error(data, 1)
+
+    def test_bad_state_after_id(self):
+        data = [b'msgid ""', b'bad state']
+        self._check_error(data, 2)
+
+    def test_bad_state_after_str(self):
+        data = [b'msgid ""', b'msgstr ""', b'bad state']
+        self._check_error(data, 3)
+
+    def test_multiline_msgid(self):
+        data = [b'msgid "a"', b'"b"', b'msgstr ""']
+        _, ids, _, _ = parseGetText(data)
+        self.assertEquals(ids, [b'a', b'b'])
+
+class TestParseError(unittest.TestCase):
+
+    def test_str(self):
+        error = ParseError("state", 10, 'data')
+        self.assertEqual("state state, line num 10: 'data'", str(error))
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

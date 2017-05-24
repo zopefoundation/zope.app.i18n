@@ -30,13 +30,24 @@ except NameError:
     string_types = (str,)
 
 class ParseError(Exception):
-    def __init__(self, state, lineno):
-        Exception.__init__(self, state, lineno)
+    def __init__(self, state, lineno, line=''):
+        Exception.__init__(self, state, lineno, line)
         self.state = state
         self.lineno = lineno
+        self.line = line
 
     def __str__(self):
-        return "state %s, line %s" % (self.state, self.lineno)
+        return "state %s, line num %s: '%s'" % (self.state, self.lineno, self.line)
+
+def _find_language(languages, kind):
+    if isinstance(languages, string_types):
+        languages = [languages]
+
+    if len(languages) != 1:
+        raise TypeError(
+            'Exactly one language at a time is supported for gettext %s.' % (kind,))
+
+    return languages[0]
 
 
 @implementer(IMessageExportFilter)
@@ -52,13 +63,7 @@ class GettextExportFilter(object):
         'See IMessageExportFilter'
         domain = self.domain.domain
 
-        if isinstance(languages, string_types):
-            language = languages
-        elif len(languages) == 1:
-            language = languages[0]
-        else:
-            raise TypeError(
-                'Only one language at a time is supported for gettext export.')
+        language = _find_language(languages, 'export')
 
         dt = time.time()
         dt = time.localtime(dt)
@@ -88,13 +93,7 @@ class GettextImportFilter(object):
     def importMessages(self, languages, data_file):
         'See IMessageImportFilter'
 
-        if isinstance(languages, string_types):
-            language = languages
-        elif len(languages) == 1:
-            language = languages[0]
-        else:
-            raise TypeError(
-                'Only one language at a time is supported for gettext export.')
+        language = _find_language(languages, 'import')
 
         result = parseGetText(data_file.readlines())[3]
         headers = parserHeaders(b''.join(result[(b'',)][1]))
@@ -155,7 +154,7 @@ def parseGetText(content):
             elif blank.match(line):
                 pointer = pointer + 1
             else:
-                raise ParseError(0, pointer + 1)
+                raise ParseError(0, pointer + 1, line)
         elif state == 1:
             if com.match(line):
                 COM.append(line.strip())
@@ -168,7 +167,7 @@ def parseGetText(content):
             elif blank.match(line):
                 pointer = pointer + 1
             else:
-                raise ParseError(1, pointer + 1)
+                raise ParseError(1, pointer + 1, line)
 
         elif state == 2:
             if com.match(line):
@@ -186,7 +185,7 @@ def parseGetText(content):
             elif blank.match(line):
                 pointer = pointer + 1
             else:
-                raise ParseError(2, pointer + 1)
+                raise ParseError(2, pointer + 1, line)
 
         elif state == 3:
             if com.match(line) or msgid.match(line):
@@ -200,7 +199,7 @@ def parseGetText(content):
             elif blank.match(line):
                 pointer = pointer + 1
             else:
-                raise ParseError(3, pointer + 1)
+                raise ParseError(3, pointer + 1, line)
 
     # the last also goes in
     if tuple(MSGID):

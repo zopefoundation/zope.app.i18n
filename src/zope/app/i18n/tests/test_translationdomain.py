@@ -23,17 +23,16 @@ from zope.component import provideAdapter
 from zope.component.interfaces import IFactory
 from zope.component.factory import Factory
 from zope.i18n.interfaces import ITranslationDomain
-from zope.i18n.interfaces import IUserPreferredLanguages
-from zope.i18n.tests.test_itranslationdomain import TestITranslationDomain
+
+from zope.i18n.tests import test_itranslationdomain
 from zope.i18n.translationdomain \
      import TranslationDomain as GlobalTranslationDomain
-from zope.interface import implementer
+
 from zope.interface.verify import verifyObject
 from zope.traversing.api import traverse
 
 
 from zope.app.component.testing import PlacefulSetup
-from zope.app.component.testing import setUpTraversal
 from zope.app.component.testing import createSiteManager
 
 
@@ -49,27 +48,8 @@ def setUpSiteManagerLookup():
     provideAdapter(SiteManagerAdapter, (Interface,),
                    IComponentLookup)
 
-@implementer(IUserPreferredLanguages)
-class Environment(object):
-
-    def __init__(self, langs=()):
-        self.langs = langs
-
-    def getPreferredLanguages(self):
-        return self.langs
 
 class AbstractTestILocalTranslationDomainMixin(object):
-
-    def _getTranslationDomain(self):
-        """This should be overwritten by every clas that inherits this test.
-
-           We expect the TranslationDomain to contain exactly 2 languages:
-           de and en
-        """
-        raise NotImplementedError()
-
-    def setUp(self):
-        self._domain = self._getTranslationDomain()
 
     def testInterface(self):
         verifyObject(ITranslationDomain, self._domain)
@@ -143,16 +123,9 @@ class AbstractTestISyncTranslationDomainMixin(object):
         ]
 
 
-    # This should be overwritten by every clas that inherits this test
-    def _getTranslationDomain(self):
-        raise NotImplementedError()
-
-
-    def setUp(self):
-        self._domain = self._getTranslationDomain()
-
     def testInterface(self):
         verifyObject(interfaces.ISyncTranslationDomain, self._domain)
+        super(AbstractTestISyncTranslationDomainMixin, self).testInterface()
 
     def testGetMessagesMapping(self):
         mapping = self._domain.getMessagesMapping(['de', 'en'],
@@ -188,30 +161,25 @@ class AbstractTestISyncTranslationDomainMixin(object):
                          None)
 
 
-class TestTranslationDomain(TestITranslationDomain,
-                            AbstractTestISyncTranslationDomainMixin,
-                            AbstractTestILocalTranslationDomainMixin,
-                            unittest.TestCase):
-
+class TestTranslationDomain(
+        AbstractTestISyncTranslationDomainMixin,
+        AbstractTestILocalTranslationDomainMixin,
+        test_itranslationdomain.TestITranslationDomain,
+        unittest.TestCase):
 
     def setUp(self):
-        super(TestTranslationDomain, self).setUp()
-
         # placefulSetup
         psetup = PlacefulSetup()
         self.sm = psetup.setUp(True, True)
         self.rootFolder = psetup.rootFolder
+
+        super(TestTranslationDomain, self).setUp()
         setUpSiteManagerLookup()
 
         self.sm.registerUtility(self._domain, ITranslationDomain, 'default')
 
         provideUtility(Factory(MessageCatalog), IFactory,
                        'zope.app.MessageCatalog')
-
-        import zope.i18n.interfaces
-        import zope.i18n.negotiator
-        provideUtility(zope.i18n.negotiator.negotiator,
-                       zope.i18n.interfaces.INegotiator)
 
     def tearDown(self):
         PlacefulSetup().tearDown()
@@ -246,6 +214,30 @@ class TestTranslationDomain(TestITranslationDomain,
         domain.addMessage('greeting2', 'Hola!', 'ca')
         self.assertEqual(domain['ca'].domain, domain.domain)
         domain.domain = 'default'
+
+    def test_getMessages(self):
+        messages = [{'domain': 'default',
+                     'language': 'de',
+                     'mod_time': 0,
+                     'msgid': 'greeting',
+                     'msgstr': 'Hallo $name, wie geht es Dir?'},
+                    {'domain': 'default',
+                     'language': 'de',
+                     'mod_time': 10,
+                     'msgid': 'short_greeting',
+                     'msgstr': 'Hallo!'},
+                    {'domain': 'default',
+                     'language': 'en',
+                     'mod_time': 0,
+                     'msgid': 'greeting',
+                     'msgstr': 'Hello $name, how are you?'},
+                    {'domain': 'default',
+                     'language': 'en',
+                     'mod_time': 10,
+                     'msgid': 'short_greeting',
+                     'msgstr': 'Hello!'}]
+        self.assertEqual(messages,
+                         self._domain.getMessages())
 
 class TestTranslationDomainInAction(unittest.TestCase):
 
