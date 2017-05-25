@@ -61,7 +61,8 @@ class Translate(BaseView):
                     self.context.addMessage(msg_id, msg, language)
 
         # Handle edited Messages
-        keys = [k[12:] for k in self.request.keys()
+        keys = [k[len('edit-msg_id-'):]
+                for k in self.request.keys()
                 if k.startswith('edit-msg_id-')]
         for key in keys:
             msg_id = self.request['edit-msg_id-'+key]

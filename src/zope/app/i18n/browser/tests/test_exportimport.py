@@ -26,34 +26,13 @@ from zope.app.i18n.browser.exportimport import ExportImport
 import zope.app.i18n.tests
 from zope.publisher.browser import TestRequest
 
+from zope.app.i18n.tests.test_filters import GETTEXT_IMPORT_DATA
 
 class TestExportImport(unittest.TestCase):
 
     layer = ZCMLFileLayer(zope.app.i18n.tests)
 
-    data = b'''
-
-msgid ""
-msgstr ""
-"Project-Id-Version: Zope 3\\n"
-"PO-Revision-Date: %s\\n"
-"Last-Translator: Zope 3 Gettext Export Filter\\n"
-"Zope-Language: de\\n"
-"Zope-Domain: default\\n"
-"MIME-Version: 1.0\\n"
-"Content-Type: text/plain; charset=UTF-8\\n"
-"Content-Transfer-Encoding: 8bit\\n"
-
-msgid "Choose"
-# comment
-msgstr "Ausw\xc3\xa4hlen!"
-# comment
-
-# comment
-msgid "greeting"
-msgstr "hallo"
-# comment
-'''
+    data = GETTEXT_IMPORT_DATA
 
     def setUp(self):
         super(TestExportImport, self).setUp()

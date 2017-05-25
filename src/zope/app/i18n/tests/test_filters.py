@@ -35,10 +35,7 @@ from zope.app.i18n.filters import GettextExportFilter
 from zope.app.i18n.filters import ParseError
 from zope.app.i18n.filters import parseGetText
 
-
-class TestGettextExportImport(PlacelessSetup, unittest.TestCase):
-
-    _data = b'''
+GETTEXT_IMPORT_DATA = b'''
 
 msgid ""
 msgstr ""
@@ -61,6 +58,10 @@ msgid "greeting"
 msgstr "hallo"
 # comment
 '''
+
+class TestGettextExportImport(PlacelessSetup, unittest.TestCase):
+
+    _data = GETTEXT_IMPORT_DATA
 
     def setUp(self):
         super(TestGettextExportImport, self).setUp()

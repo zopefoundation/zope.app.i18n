@@ -18,12 +18,12 @@ import unittest
 from zope.component.testing import PlacelessSetup
 from zope.configuration import xmlconfig
 
-import zope.app.i18n
+import zope.app.i18n.tests
 
 class TestConfiguration(PlacelessSetup, unittest.TestCase):
 
-	def test_configure(self):
-		xmlconfig.file('ftesting.zcml', zope.app.i18n.tests)
+    def test_configure(self):
+        xmlconfig.file('ftesting.zcml', zope.app.i18n.tests)
 
 def test_suite():
-	return unittest.defaultTestLoader.loadTestsFromName(__name__)
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)
