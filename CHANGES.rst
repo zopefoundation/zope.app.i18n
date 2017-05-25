@@ -13,7 +13,7 @@ CHANGES
 
 - The synchronization view now uses Python's built-in transport for
   handling Basic Authentication. As a reminder, Basic Authentication
-  does not permit a colon (`:`) in the username, but does allow colons
+  does not permit a colon (``:``) in the username, but does allow colons
   in the password (if the server properly conforms to the specification).
 
 3.6.4 (2012-12-14)
