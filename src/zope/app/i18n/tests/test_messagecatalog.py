@@ -13,31 +13,34 @@
 ##############################################################################
 """Test the generic persistent Message Catalog.
 
-$Id$
 """
 import unittest
 
+from zope.component.interfaces import IFactory
 from zope.interface.verify import verifyObject
 from zope.app.i18n.messagecatalog import MessageCatalog
 from zope.app.i18n.interfaces import ILocalMessageCatalog
-from zope.i18n.tests.test_imessagecatalog import TestIMessageCatalog
+from zope.i18n.tests import test_imessagecatalog
 
 
-# This is a mixin class -- don't add it to the suite
-class TestILocalMessageCatalog(object):
+class TestLocalMessageCatalog(test_imessagecatalog.TestIMessageCatalog):
 
-    # This should be overwritten by every class that inherits this test
     def _getMessageCatalog(self):
-        pass
+        catalog = MessageCatalog('en', 'default')
+        catalog.setMessage('short_greeting', 'Hello!', 0)
+        catalog.setMessage('greeting', 'Hello $name, how are you?', 0)
+        return catalog
 
     def _getUniqueIndentifier(self):
-        pass
+        return ('en', 'default')
 
     def setUp(self):
         self._catalog = self._getMessageCatalog()
 
     def testInterface(self):
         verifyObject(ILocalMessageCatalog, self._catalog)
+        self.assertEqual((IFactory,),
+                         self._catalog.getInterfaces())
 
     def testGetFullMessage(self):
         catalog = self._catalog
@@ -80,24 +83,5 @@ class TestILocalMessageCatalog(object):
         self.assertEqual(ids, ['greeting', 'short_greeting'])
 
 
-class LocalMessageCatalogTest(TestIMessageCatalog,
-                               TestILocalMessageCatalog):
-
-    def setUp(self):
-        TestIMessageCatalog.setUp(self)
-        TestILocalMessageCatalog.setUp(self)
-
-    def _getMessageCatalog(self):
-        catalog = MessageCatalog('en', 'default')
-        catalog.setMessage('short_greeting', 'Hello!', 0)
-        catalog.setMessage('greeting', 'Hello $name, how are you?', 0)
-        return catalog
-
-    def _getUniqueIndentifier(self):
-        return ('en', 'default')
-
-
 def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(LocalMessageCatalogTest))
-    return suite
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)

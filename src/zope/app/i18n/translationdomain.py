@@ -13,7 +13,6 @@
 ##############################################################################
 """This is the standard, placeful Translation Domain for TTW development.
 
-$Id$
 """
 __docformat__ = 'restructuredtext'
 
@@ -21,7 +20,7 @@ import re
 from BTrees.OOBTree import OOBTree
 
 import zope.component
-from zope.interface import implements
+from zope.interface import implementer
 from zope.i18n import interpolate
 from zope.i18n.interfaces import INegotiator, ITranslationDomain
 from zope.i18n.simpletranslationdomain import SimpleTranslationDomain
@@ -30,9 +29,13 @@ from zope.container.btree import BTreeContainer
 from zope.container.contained import Contained
 from zope.app.i18n.interfaces import ILocalTranslationDomain
 
+try:
+    unicode
+except NameError:
+    unicode = str
 
+@implementer(ILocalTranslationDomain)
 class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
-    implements(ILocalTranslationDomain)
 
     def __init__(self):
         super(TranslationDomain, self).__init__()
@@ -105,7 +108,7 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
         for language in self.getAvailableLanguages():
             for name in self._catalogs[language]:
                 for msgid in self[name].getMessageIds():
-                    if filter_re.match(msgid) >= 0:
+                    if filter_re.match(msgid):
                         msgids[msgid] = None
         return msgids.keys()
 
@@ -130,20 +133,16 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
 
     def getAllLanguages(self):
         'See `IWriteTranslationDomain`'
-        languages = {}
-        for key in self._catalogs.keys():
-            languages[key] = None
-        return languages.keys()
-
+        return sorted(self._catalogs)
 
     def getAvailableLanguages(self):
         'See `IWriteTranslationDomain`'
-        return list(self._catalogs.keys())
+        return self.getAllLanguages()
 
 
     def addMessage(self, msgid, msg, language, mod_time=None):
         'See `IWriteTranslationDomain`'
-        if not self._catalogs.has_key(language):
+        if language not in self._catalogs:
             if language not in self.getAllLanguages():
                 self.addLanguage(language)
 

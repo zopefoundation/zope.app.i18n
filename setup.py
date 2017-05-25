@@ -24,46 +24,64 @@ import os
 from setuptools import setup, find_packages
 
 def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+    with open(os.path.join(os.path.dirname(__file__), *rnames)) as f:
+        return f.read()
 
 setup(name='zope.app.i18n',
-    version='3.6.5dev',
+    version='4.0.0.dev0s',
     author='Zope Corporation and Contributors',
     author_email='zope-dev@zope.org',
     description='Persistent translation domains and message catalogs',
     long_description=(
-        read('README.txt')
+        read('README.rst')
         + '\n\n' +
-        read('CHANGES.txt')
+        read('CHANGES.rst')
         ),
-    keywords = "zope3 i18n message factory",
-    classifiers = [
+    keywords="zope3 i18n message factory",
+    classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Zope Public License',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Topic :: Internet :: WWW/HTTP',
-        'Framework :: Zope3'],
-    url='http://pypi.python.org/pypi/zope.app.i18n',
+        'Framework :: Zope3',
+    ],
+    url='http://github.com/zopefoundation/zope.app.i18n',
     license='ZPL 2.1',
     packages=find_packages('src'),
-    package_dir = {'': 'src'},
+    package_dir={'': 'src'},
     namespace_packages=['zope', 'zope.app'],
-    extras_require = dict(test=['zope.app.testing']),
-    install_requires=['setuptools',
-                      'zope.publisher>=3.9',
-                      'zope.component>=3.6',
-                      'zope.container',
-                      'zope.configuration',
-                      'zope.i18n',
-                      'zope.i18nmessageid',
-                      'zope.interface',
-                      'zope.security',
-                      'ZODB3',
-                      ],
-    include_package_data = True,
-    zip_safe = False,
-    )
+    extras_require={
+        'test': [
+            'zope.app.component',
+            'zope.testing',
+            'zope.testrunner',
+        ],
+    },
+    install_requires=[
+        'BTrees >= 4.4.1',
+        'persistent >= 4.2.4',
+        'setuptools',
+        'zope.app.publisher >= 4.0.0',
+        'zope.component >= 4.3.0',
+        'zope.configuration',
+        'zope.container >= 4.1.0',
+        'zope.i18n >= 4.2.0',
+        'zope.i18nmessageid >= 4.1.0',
+        'zope.interface',
+        'zope.publisher >= 4.3.2',
+        'zope.security',
+    ],
+    include_package_data=True,
+    zip_safe=False,
+)

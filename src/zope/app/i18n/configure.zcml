@@ -5,6 +5,9 @@
   <!-- BBB -->
   <include package="zope.i18n" />
 
+  <!-- permission definitions -->
+  <include package="zope.security" />
+
   <!-- Register the Translation Domain as a content object -->
   <class class=".translationdomain.TranslationDomain">
     <factory

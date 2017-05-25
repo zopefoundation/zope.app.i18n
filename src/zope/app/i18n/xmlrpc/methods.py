@@ -11,9 +11,8 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""Translation Domain XML-RPC Methods 
+"""Translation Domain XML-RPC Methods
 
-$Id$
 """
 __docformat__ = 'restructuredtext'
 

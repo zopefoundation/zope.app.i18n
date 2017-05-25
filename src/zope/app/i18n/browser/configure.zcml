@@ -1,13 +1,13 @@
-<zope:configure 
+<zope:configure
     xmlns:zope="http://namespaces.zope.org/zope"
     xmlns="http://namespaces.zope.org/browser">
 
-  <pages 
-      permission="zope.ManageServices" 
+  <pages
+      permission="zope.ManageServices"
       for="zope.i18n.interfaces.ITranslationDomain"
       class=".translate.Translate">
 
-    <page name="translate.html" template="translate.pt" 
+    <page name="translate.html" template="translate.pt"
           menu="zmi_views" title="Translate" />
     <page name="translateMessage.html" template="translatemessage.pt" />
     <page name="editMessages.html" attribute="editMessages" />
@@ -20,11 +20,11 @@
   </pages>
 
 
-  <pages 
-      permission="zope.ManageServices" 
+  <pages
+      permission="zope.ManageServices"
       for="zope.i18n.interfaces.ITranslationDomain"
       class=".exportimport.ExportImport">
-    
+
     <page name="exportImportForm.html" template="exportimport.pt"
           menu="zmi_views" title="Import/Export" />
     <page name="export.html" attribute="exportMessages" />
@@ -34,10 +34,10 @@
 
 
   <pages
-      permission="zope.ManageServices" 
+      permission="zope.ManageServices"
       for="zope.i18n.interfaces.ITranslationDomain"
       class=".synchronize.Synchronize">
-    
+
     <page name="synchronizeForm.html" template="synchronize.pt"
           menu="zmi_views" title="Synchronize" />
     <page name="synchronize.html" attribute="synchronize" />
@@ -58,8 +58,8 @@
       permission="zope.ManageServices"
       />
 
-  <icon 
-      name="zmi_icon" 
+  <icon
+      name="zmi_icon"
       for="zope.i18n.interfaces.ITranslationDomain"
       file="./i18n_domain.gif" />
 

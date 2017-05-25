@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Message Export/Import View
-
-$Id$
 """
 __docformat__ = 'restructuredtext'
 
