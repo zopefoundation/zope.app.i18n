@@ -41,8 +41,9 @@ from zope.app.i18n.messagecatalog import MessageCatalog
 from zope.app.i18n.translationdomain import TranslationDomain
 
 from zope.site.site import SiteManagerAdapter
-from zope.component.interfaces import IComponentLookup
+from zope.interface.interfaces import IComponentLookup
 from zope.interface import Interface
+
 
 def setUpSiteManagerLookup():
     provideAdapter(SiteManagerAdapter, (Interface,),
