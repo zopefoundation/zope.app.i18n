@@ -38,17 +38,25 @@ class MessageCatalog(Persistent):
         self._messages = OOBTree()
 
     def getMessage(self, id):
-        'See `IReadMessageCatalog`'
+        'See `IMessageCatalog`'
         return self._messages[id][0]
 
     def queryMessage(self, id, default=None):
-        'See `IReadMessageCatalog`'
+        'See `IMessageCatalog`'
         result = self._messages.get(id)
         if result is not None:
             result = result[0]
         else:
             result = default
         return result
+
+    def getPluralMessage(self, singular, plural, n):
+        'See `IMessageCatalog`'
+        raise NotImplementedError
+
+    def queryPluralMessage(self, singular, plural, n, dft1=None, dft2=None):
+        'See `IMessageCatalog`'
+        raise NotImplementedError
 
     def getIdentifier(self):
         'See `IReadMessageCatalog`'
