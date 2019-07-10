@@ -35,13 +35,13 @@
 
   <subscriber
       for=".interfaces.ILocalTranslationDomain
-           zope.component.interfaces.IRegistered"
+           zope.interface.interfaces.IRegistered"
       handler=".translationdomain.setDomainOnActivation"
       />
 
   <subscriber
       for=".interfaces.ILocalTranslationDomain
-           zope.component.interfaces.IUnregistered"
+           zope.interface.interfaces.IUnregistered"
       handler=".translationdomain.unsetDomainOnDeactivation"
       />
 

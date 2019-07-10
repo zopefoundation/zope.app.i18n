@@ -238,8 +238,8 @@ def setDomainOnActivation(domain, event):
     >>> domain1.domain
     '<domain not activated>'
 
-    >>> import zope.component.interfaces
-    >>> event = zope.component.interfaces.Registered(
+    >>> import zope.interface.interfaces
+    >>> event = zope.interface.interfaces.Registered(
     ...     Registration(domain1, 'domain1'))
 
     Now we pass the event into this function, and the id of the domain should
@@ -266,8 +266,8 @@ def unsetDomainOnDeactivation(domain, event):
     >>> domain1 = TranslationDomain()
     >>> domain1.domain = 'domain1'
 
-    >>> import zope.component.interfaces
-    >>> event = zope.component.interfaces.Unregistered(
+    >>> import zope.interface.interfaces
+    >>> event = zope.interface.interfaces.Unregistered(
     ...     Registration(domain1, 'domain1'))
 
     Now we pass the event into this function, and the id of the role should be

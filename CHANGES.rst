@@ -7,6 +7,10 @@ CHANGES
 
 - Add support for Python 3.7.
 
+- Fix deprecation warning about importing IRegistered/IUnregistered from
+  their old locations in zope.component.interfaces instead of their current
+  locations in zope.interface.interfaces.
+
 
 4.0.0 (2017-05-25)
 ------------------

@@ -19,7 +19,6 @@ import unittest
 import time
 from io import BytesIO
 
-
 from zope.component.testing import PlacelessSetup
 from zope.component.interfaces import IFactory
 from zope.component.factory import Factory
@@ -34,6 +33,7 @@ from zope.app.i18n.filters import GettextImportFilter
 from zope.app.i18n.filters import GettextExportFilter
 from zope.app.i18n.filters import ParseError
 from zope.app.i18n.filters import parseGetText
+
 
 GETTEXT_IMPORT_DATA = b'''
 
@@ -98,6 +98,7 @@ class TestGettextExportImport(PlacelessSetup, unittest.TestCase):
         exp = GettextExportFilter(self._domain)
         self.assertRaises(TypeError, exp.exportMessages, ['1', '2'])
 
+
 class TestParseGetText(unittest.TestCase):
 
     def setUp(self):
@@ -109,7 +110,6 @@ class TestParseGetText(unittest.TestCase):
             parseGetText(data)
 
         self.assertEqual(exc.exception.state, state)
-
 
     def test_bad_start_state(self):
         data = [b'bad first line']
@@ -130,13 +130,15 @@ class TestParseGetText(unittest.TestCase):
     def test_multiline_msgid(self):
         data = [b'msgid "a"', b'"b"', b'msgstr ""']
         _, ids, _, _ = parseGetText(data)
-        self.assertEquals(ids, [b'a', b'b'])
+        self.assertEqual(ids, [b'a', b'b'])
+
 
 class TestParseError(unittest.TestCase):
 
     def test_str(self):
         error = ParseError("state", 10, 'data')
         self.assertEqual("state state, line num 10: 'data'", str(error))
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)
