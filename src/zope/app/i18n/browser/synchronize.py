@@ -37,7 +37,6 @@ except ImportError:
     from urllib.parse import urlparse
     from urllib.parse import urlunparse
 
-from base64 import encodestring
 
 import zope.i18nmessageid
 
