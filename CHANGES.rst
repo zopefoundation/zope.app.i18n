@@ -7,8 +7,9 @@
 
 - Add support for Python 3.8 and 3.9.
 
-- Remove unused import of ``base64.encodestring``.
+- Drop support for Python 3.5.
 
+- Remove unused import of ``base64.encodestring``.
 
 4.1.0 (2020-10-07)
 ==================
