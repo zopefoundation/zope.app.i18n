@@ -11,7 +11,7 @@ CHANGES
   their old locations in zope.component.interfaces instead of their current
   locations in zope.interface.interfaces.
 
-- Add compatibility with ``zope.i18n >= 4.7``. We fulfil the interface for
+- Add compatibility with ``zope.i18n >= 4.7``. We fulfill the interface for
   plural messages now, although we do not provide any implementation. This is
   documented and raises NotImplementedError.
 

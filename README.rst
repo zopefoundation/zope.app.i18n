@@ -3,7 +3,7 @@ zope.app.i18n
 =============
 
 .. image:: https://img.shields.io/pypi/v/zope.app.i18n.svg
-        :target: https://pypi.python.org/pypi/zope.app.i18n/
+        :target: https://pypi.org/project/zope.app.i18n/
         :alt: Latest release
 
 .. image:: https://img.shields.io/pypi/pyversions/zope.app.i18n.svg
