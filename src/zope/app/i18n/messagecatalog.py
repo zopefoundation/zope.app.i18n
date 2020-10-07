@@ -52,10 +52,14 @@ class MessageCatalog(Persistent):
 
     def getPluralMessage(self, singular, plural, n):
         'See `IMessageCatalog`'
+        # Plural messages are not supported yet. Please report an issue kn
+        # github in case you want to implement this feature.
         raise NotImplementedError
 
     def queryPluralMessage(self, singular, plural, n, dft1=None, dft2=None):
         'See `IMessageCatalog`'
+        # Plural messages are not supported yet. Please report an issue kn
+        # github in case you want to implement this feature.
         raise NotImplementedError
 
     def getIdentifier(self):

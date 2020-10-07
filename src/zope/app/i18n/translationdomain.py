@@ -67,6 +67,11 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
                   target_language=None, default=None, msgid_plural=None,
                   default_plural=None, number=None):
         """See interface `ITranslationDomain`"""
+        if any((default_plural, msgid_plural, number)):
+            # Plural messages are not supported yet. Please report an issue kn
+            # github in case you want to implement this feature.
+            raise NotImplementedError('Plural messages are not supported yet')
+
         if target_language is None and context is not None:
             avail_langs = self.getAvailableLanguages()
             # Let's negotiate the language to translate to. :)
