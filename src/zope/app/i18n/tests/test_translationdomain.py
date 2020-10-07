@@ -296,6 +296,25 @@ class TestTranslationDomainInAction(unittest.TestCase):
                                   target_language='de'),
             'Guten Tag!')
 
+    def test_translate__2(self):
+        """It raises a NotImplementedError in case of plural messages."""
+        with self.assertRaises(NotImplementedError) as err:
+            self.trans1.translate('some text', msgid_plural="some texts")
+        with self.assertRaises(NotImplementedError) as err2:
+            self.trans1.translate('some text', default_plural="some texts")
+        with self.assertRaises(NotImplementedError) as err3:
+            self.trans1.translate('some text', number="some texts")
+
+        expected = (
+            'Plural messages are not supported yet.'
+            ' See https://github.com/zopefoundation/zope.app.i18n/issues/7'
+        )
+
+        self.assertEqual(str(err.exception), expected)
+        self.assertEqual(str(err2.exception), expected)
+        self.assertEqual(str(err3.exception), expected)
+
+
 def test_suite():
     return unittest.TestSuite((
         unittest.defaultTestLoader.loadTestsFromName(__name__),

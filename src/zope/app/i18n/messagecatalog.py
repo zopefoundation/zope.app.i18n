@@ -23,6 +23,7 @@ from BTrees.OOBTree import OOBTree
 from persistent import Persistent
 from zope.component.interfaces import IFactory
 from zope.app.i18n.interfaces import ILocalMessageCatalog
+from zope.app.i18n.interfaces import NotYetImplementedError
 
 @implementer(ILocalMessageCatalog)
 @provider(IFactory)
@@ -38,17 +39,25 @@ class MessageCatalog(Persistent):
         self._messages = OOBTree()
 
     def getMessage(self, id):
-        'See `IReadMessageCatalog`'
+        'See `IMessageCatalog`'
         return self._messages[id][0]
 
     def queryMessage(self, id, default=None):
-        'See `IReadMessageCatalog`'
+        'See `IMessageCatalog`'
         result = self._messages.get(id)
         if result is not None:
             result = result[0]
         else:
             result = default
         return result
+
+    def getPluralMessage(self, singular, plural, n):
+        'See `IMessageCatalog`'
+        raise NotYetImplementedError
+
+    def queryPluralMessage(self, singular, plural, n, dft1=None, dft2=None):
+        'See `IMessageCatalog`'
+        raise NotYetImplementedError
 
     def getIdentifier(self):
         'See `IReadMessageCatalog`'

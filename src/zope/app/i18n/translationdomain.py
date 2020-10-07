@@ -28,6 +28,7 @@ from zope.i18n.simpletranslationdomain import SimpleTranslationDomain
 from zope.container.btree import BTreeContainer
 from zope.container.contained import Contained
 from zope.app.i18n.interfaces import ILocalTranslationDomain
+from zope.app.i18n.interfaces import NotYetImplementedError
 
 try:
     unicode
@@ -64,8 +65,12 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
         self._unregisterMessageCatalog(object.language, name)
 
     def translate(self, msgid, mapping=None, context=None,
-                  target_language=None, default=None):
+                  target_language=None, default=None, msgid_plural=None,
+                  default_plural=None, number=None):
         """See interface `ITranslationDomain`"""
+        if any((default_plural, msgid_plural, number)):
+            raise NotYetImplementedError
+
         if target_language is None and context is not None:
             avail_langs = self.getAvailableLanguages()
             # Let's negotiate the language to translate to. :)
@@ -80,6 +85,7 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
 
         for name in catalog_names:
             catalog = super(TranslationDomain, self).__getitem__(name)
+            # TODO: handle msgid_plural
             text = catalog.queryMessage(msgid)
             if text is not None:
                 break
@@ -89,10 +95,12 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
             domain = zope.component.queryNextUtility(self, ITranslationDomain,
                                                      self.domain)
             if domain is not None:
+                # TODO: handle msgid_plural
                 return domain.translate(msgid, mapping, context,
                                         target_language, default=default)
             if default is None:
                 default = unicode(msgid)
+            # TODO: handle msgid_plural/default_plural
             text = default
 
         # Now we need to do the interpolation
