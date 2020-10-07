@@ -2,7 +2,7 @@
  CHANGES
 =========
 
-4.1.0 (unreleased)
+4.1.0 (2020-10-07)
 ==================
 
 - Add compatibility with ``zope.i18n >= 4.7``. We fulfill the interface for
