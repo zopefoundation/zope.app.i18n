@@ -1,6 +1,6 @@
-=============
-zope.app.i18n
-=============
+===============
+ zope.app.i18n
+===============
 
 .. image:: https://img.shields.io/pypi/v/zope.app.i18n.svg
         :target: https://pypi.org/project/zope.app.i18n/
@@ -17,13 +17,13 @@ zope.app.i18n
         :target: https://coveralls.io/github/zopefoundation/zope.app.i18n?branch=master
 
 Summary
--------
+=======
 
 This package provides placeful persistent translation domains and
 message catalogs along with ZMI views for managing them.
 
 Caveats
--------
+=======
 
 Currently this integration does not support the feature of plural messages
 which is supported by the underlying ``zope.i18n`` library. In case you need
