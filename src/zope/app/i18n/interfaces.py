@@ -143,3 +143,11 @@ class ILocalMessageCatalog(IMessageCatalog):
 
     def getMessages():
         """Get a list of all the messages."""
+
+
+# Plural messages are not supported yet. Please report an issue kn
+# github in case you want to implement this feature.
+NotYetImplementedError = NotImplementedError(
+    'Plural messages are not supported yet.'
+    ' See https://github.com/zopefoundation/zope.app.i18n/issues/7'
+)

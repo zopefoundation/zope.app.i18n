@@ -23,6 +23,7 @@ from BTrees.OOBTree import OOBTree
 from persistent import Persistent
 from zope.component.interfaces import IFactory
 from zope.app.i18n.interfaces import ILocalMessageCatalog
+from zope.app.i18n.interfaces import NotYetImplementedError
 
 @implementer(ILocalMessageCatalog)
 @provider(IFactory)
@@ -52,15 +53,11 @@ class MessageCatalog(Persistent):
 
     def getPluralMessage(self, singular, plural, n):
         'See `IMessageCatalog`'
-        # Plural messages are not supported yet. Please report an issue kn
-        # github in case you want to implement this feature.
-        raise NotImplementedError
+        raise NotYetImplementedError
 
     def queryPluralMessage(self, singular, plural, n, dft1=None, dft2=None):
         'See `IMessageCatalog`'
-        # Plural messages are not supported yet. Please report an issue kn
-        # github in case you want to implement this feature.
-        raise NotImplementedError
+        raise NotYetImplementedError
 
     def getIdentifier(self):
         'See `IReadMessageCatalog`'

@@ -305,12 +305,14 @@ class TestTranslationDomainInAction(unittest.TestCase):
         with self.assertRaises(NotImplementedError) as err3:
             self.trans1.translate('some text', number="some texts")
 
-        self.assertEqual(
-            str(err.exception), 'Plural messages are not supported yet')
-        self.assertEqual(
-            str(err2.exception), 'Plural messages are not supported yet')
-        self.assertEqual(
-            str(err3.exception), 'Plural messages are not supported yet')
+        expected = (
+            'Plural messages are not supported yet.'
+            ' See https://github.com/zopefoundation/zope.app.i18n/issues/7'
+        )
+
+        self.assertEqual(str(err.exception), expected)
+        self.assertEqual(str(err2.exception), expected)
+        self.assertEqual(str(err3.exception), expected)
 
 
 def test_suite():

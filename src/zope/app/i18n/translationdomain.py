@@ -28,6 +28,7 @@ from zope.i18n.simpletranslationdomain import SimpleTranslationDomain
 from zope.container.btree import BTreeContainer
 from zope.container.contained import Contained
 from zope.app.i18n.interfaces import ILocalTranslationDomain
+from zope.app.i18n.interfaces import NotYetImplementedError
 
 try:
     unicode
@@ -68,9 +69,7 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
                   default_plural=None, number=None):
         """See interface `ITranslationDomain`"""
         if any((default_plural, msgid_plural, number)):
-            # Plural messages are not supported yet. Please report an issue kn
-            # github in case you want to implement this feature.
-            raise NotImplementedError('Plural messages are not supported yet')
+            raise NotYetImplementedError
 
         if target_language is None and context is not None:
             avail_langs = self.getAvailableLanguages()
