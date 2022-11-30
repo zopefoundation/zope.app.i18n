@@ -15,18 +15,18 @@
 Translation Domain.
 
 """
-import unittest
 import time
+import unittest
 from io import BytesIO
 
 from zope.component.testlayer import ZCMLFileLayer
-
-from zope.app.i18n.translationdomain import TranslationDomain
-from zope.app.i18n.browser.exportimport import ExportImport
-import zope.app.i18n.tests
 from zope.publisher.browser import TestRequest
 
+import zope.app.i18n.tests
+from zope.app.i18n.browser.exportimport import ExportImport
 from zope.app.i18n.tests.test_filters import GETTEXT_IMPORT_DATA
+from zope.app.i18n.translationdomain import TranslationDomain
+
 
 class TestExportImport(unittest.TestCase):
 
@@ -62,6 +62,7 @@ class TestExportImport(unittest.TestCase):
 
         expected = self.data.replace(b'# comment\n', b'') % dt
         self.assertEqual(result.strip(), expected.strip())
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

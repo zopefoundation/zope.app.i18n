@@ -17,23 +17,26 @@
 __docformat__ = 'restructuredtext'
 
 import re
-from BTrees.OOBTree import OOBTree
 
 import zope.component
-from zope.interface import implementer
-from zope.i18n import interpolate
-from zope.i18n.interfaces import INegotiator, ITranslationDomain
-from zope.i18n.simpletranslationdomain import SimpleTranslationDomain
-
+from BTrees.OOBTree import OOBTree
 from zope.container.btree import BTreeContainer
 from zope.container.contained import Contained
+from zope.i18n import interpolate
+from zope.i18n.interfaces import INegotiator
+from zope.i18n.interfaces import ITranslationDomain
+from zope.i18n.simpletranslationdomain import SimpleTranslationDomain
+from zope.interface import implementer
+
 from zope.app.i18n.interfaces import ILocalTranslationDomain
 from zope.app.i18n.interfaces import NotYetImplementedError
+
 
 try:
     unicode
 except NameError:
     unicode = str
+
 
 @implementer(ILocalTranslationDomain)
 class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
@@ -106,7 +109,6 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
         # Now we need to do the interpolation
         return interpolate(text, mapping)
 
-
     def getMessageIds(self, filter='%'):
         'See `IWriteTranslationDomain`'
         filter = filter.replace('%', '.*')
@@ -129,13 +131,12 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
                 messages += self[name].getMessages()
         return messages
 
-
     def getMessage(self, msgid, language):
         'See `IWriteTranslationDomain`'
         for name in self._catalogs.get(language, []):
             try:
                 return self[name].getFullMessage(msgid)
-            except:
+            except BaseException:
                 pass
         return None
 
@@ -147,7 +148,6 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
         'See `IWriteTranslationDomain`'
         return self.getAllLanguages()
 
-
     def addMessage(self, msgid, msg, language, mod_time=None):
         'See `IWriteTranslationDomain`'
         if language not in self._catalogs:
@@ -158,20 +158,17 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
         catalog = self[catalog_name]
         catalog.setMessage(msgid, msg, mod_time)
 
-
     def updateMessage(self, msgid, msg, language, mod_time=None):
         'See `IWriteTranslationDomain`'
         catalog_name = self._catalogs[language][0]
         catalog = self[catalog_name]
         catalog.setMessage(msgid, msg, mod_time)
 
-
     def deleteMessage(self, msgid, language):
         'See `IWriteTranslationDomain`'
         catalog_name = self._catalogs[language][0]
         catalog = self[catalog_name]
         catalog.deleteMessage(msgid)
-
 
     def addLanguage(self, language):
         'See `IWriteTranslationDomain`'
@@ -180,16 +177,14 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
         catalog.domain = self.domain
         self[language] = catalog
 
-
     def deleteLanguage(self, language):
         'See `IWriteTranslationDomain`'
         # Delete all catalogs from the data storage
         for name in self._catalogs[language]:
-            if self.has_key(name):
+            if name in self:
                 del self[name]
         # Now delete the specifc catalog registry for this language
         del self._catalogs[language]
-
 
     def getMessagesMapping(self, languages, foreign_messages):
         'See `ISyncTranslationDomain`'
@@ -199,7 +194,6 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
         for language in languages:
             for name in self._catalogs.get(language, []):
                 local_messages += self[name].getMessages()
-
 
         for fmsg in foreign_messages:
             ident = (fmsg['msgid'], fmsg['language'])
@@ -211,7 +205,6 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
                 mapping[ident] = (None, lmsg)
 
         return mapping
-
 
     def synchronize(self, messages_mapping):
         'See `ISyncTranslationDomain`'

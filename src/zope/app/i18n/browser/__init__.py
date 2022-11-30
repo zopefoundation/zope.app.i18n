@@ -18,6 +18,7 @@ __docformat__ = 'restructuredtext'
 
 from zope.i18n.interfaces import ITranslationDomain
 
+
 class BaseView(object):
 
     __used_for__ = ITranslationDomain

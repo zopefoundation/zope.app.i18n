@@ -2,12 +2,10 @@
  CHANGES
 =========
 
-4.1.1 (unreleased)
-==================
+4.2 (unreleased)
+================
 
-- Add support for Python 3.8 and 3.9.
-
-- Drop support for Python 3.5.
+- Add support for Python 3.5, 3.8, 3.9, 3.10, 3.11.
 
 - Remove unused import of ``base64.encodestring``.
 

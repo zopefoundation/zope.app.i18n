@@ -17,36 +17,33 @@
 __docformat__ = 'restructuredtext'
 
 try:
-    import httplib
-    from xmlrpclib import Transport
-    from xmlrpclib import Server
-    from xmlrpclib import ProtocolError
-except ImportError:
-    from xmlrpc.client import Transport
-    from xmlrpc.client import ProtocolError
+    import httplib  # noqa: F401 imported but unused
+    from xmlrpclib import Server  # noqa: F401 imported but unused
+except ImportError:  # PY3
     from xmlrpc.client import ServerProxy as Server
 
 try:
-    from urllib import unquote
     from urllib import quote
+    from urllib import unquote
+
     from urlparse import urlparse
     from urlparse import urlunparse
-except ImportError:
+except ImportError:  # PY3
     from urllib.parse import unquote
     from urllib.parse import quote
     from urllib.parse import urlparse
     from urllib.parse import urlunparse
 
-
 import zope.i18nmessageid
-
 from zope.security.proxy import removeSecurityProxy
 
 from zope.app.i18n.browser import BaseView
 
+
 _ = zope.i18nmessageid.MessageFactory("zope")
 
 DEFAULT = 'http://localhost:8080/++etc++site/default/zope'
+
 
 class Synchronize(BaseView):
 
@@ -76,7 +73,8 @@ class Synchronize(BaseView):
         parts = urlparse(url)
         if '@' not in parts.netloc:
             parts = list(parts)
-            parts[1] = self.sync_username + ':' + self.sync_password + '@' + parts[1]
+            parts[1] = self.sync_username + ':' + \
+                self.sync_password + '@' + parts[1]
             url = urlunparse(parts)
 
         return url
@@ -91,7 +89,7 @@ class Synchronize(BaseView):
         # exists
         try:
             self._connection.getAllLanguages()
-            return 1 # pragma: no cover
+            return 1  # pragma: no cover
         except Exception:
             self._connection = None
             return 0
@@ -104,7 +102,9 @@ class Synchronize(BaseView):
         '''Check whether we are currently connected to the server; return
         boolean'''
 
-        return bool(self._connection is not None and self._connection.getAllLanguages())
+        return bool(
+            self._connection is not None
+            and self._connection.getAllLanguages())
 
     def canConnect(self):
         '''Checks whether we can connect using this server and user data;
@@ -116,16 +116,17 @@ class Synchronize(BaseView):
 
     def getAllLanguages(self):
         connected = self._isConnected()
-        if not connected: connected = self._connect()
+        if not connected:
+            connected = self._connect()
 
         if connected:
             return self._connection.getAllLanguages()
         return []
 
-
     def queryMessages(self):
         connected = self._isConnected()
-        if not connected: connected = self._connect()
+        if not connected:
+            connected = self._connect()
 
         fmsgs = []
         if connected:
@@ -158,8 +159,9 @@ class Synchronize(BaseView):
         self.sync_languages = self.request.form.get('sync_languages', [])
         self.request.response.setCookie('sync_languages',
                                         ','.join(self.sync_languages))
-        self.request.response.setCookie('sync_url',
-                                        quote(self.request['sync_url']).strip())
+        self.request.response.setCookie(
+            'sync_url', quote(
+                self.request['sync_url']).strip())
         self.request.response.setCookie('sync_username',
                                         self.request['sync_username'])
         self.request.response.setCookie('sync_password',
@@ -168,19 +170,17 @@ class Synchronize(BaseView):
         return self.request.response.redirect(self.request.URL[-1] +
                                               '/@@synchronizeForm.html')
 
-
     def synchronize(self):
         mapping = self.queryMessages()
         self.context.synchronize(mapping)
-        return self.request.response.redirect(self.request.URL[-1]+
-                                                   '/@@synchronizeForm.html')
-
+        return self.request.response.redirect(self.request.URL[-1] +
+                                              '/@@synchronizeForm.html')
 
     def synchronizeMessages(self):
         idents = []
         for id in self.request.form['message_ids']:
-            msgid = self.request.form['update-msgid-'+id]
-            language = self.request.form['update-language-'+id]
+            msgid = self.request.form['update-msgid-' + id]
+            language = self.request.form['update-language-' + id]
             idents.append((msgid, language))
 
         mapping = self.queryMessages()
@@ -190,5 +190,5 @@ class Synchronize(BaseView):
                 new_mapping[item[0]] = item[1]
 
         self.context.synchronize(new_mapping)
-        return self.request.response.redirect(self.request.URL[-1]+
-                                                   '/@@synchronizeForm.html')
+        return self.request.response.redirect(self.request.URL[-1] +
+                                              '/@@synchronizeForm.html')

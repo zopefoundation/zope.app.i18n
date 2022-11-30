@@ -13,11 +13,12 @@
 ##############################################################################
 import unittest
 
-from zope.app.i18n.translationdomain import TranslationDomain
-from zope.app.i18n.messagecatalog import MessageCatalog
-
-from zope.app.i18n.xmlrpc.methods import Methods
 from zope.publisher.browser import TestRequest
+
+from zope.app.i18n.messagecatalog import MessageCatalog
+from zope.app.i18n.translationdomain import TranslationDomain
+from zope.app.i18n.xmlrpc.methods import Methods
+
 
 class TestMethods(unittest.TestCase):
 
@@ -39,7 +40,6 @@ class TestMethods(unittest.TestCase):
         domain['en-1'] = en_catalog
         domain['de-1'] = de_catalog
 
-
     def testMethods(self):
         view = Methods(self._domain, TestRequest())
 
@@ -59,9 +59,6 @@ class TestMethods(unittest.TestCase):
                            'msgstr': 'Hello!'}],
                          view.getMessagesFor(['en']))
 
+
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)
-
-
-if __name__ == '__main__':
-    unittest.main(defaultTest=test_suite)

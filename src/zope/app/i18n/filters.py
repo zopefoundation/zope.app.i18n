@@ -16,18 +16,21 @@
 """
 __docformat__ = 'restructuredtext'
 
-import time
 import re
+import time
 
+from zope.i18n.interfaces import IMessageExportFilter
+from zope.i18n.interfaces import IMessageImportFilter
 from zope.interface import implementer
 
-from zope.i18n.interfaces import IMessageExportFilter, IMessageImportFilter
 from zope.app.i18n.interfaces import ILocalTranslationDomain
+
 
 try:
     string_types = (basestring,)
 except NameError:
     string_types = (str,)
+
 
 class ParseError(Exception):
     def __init__(self, state, lineno, line=''):
@@ -37,7 +40,9 @@ class ParseError(Exception):
         self.line = line
 
     def __str__(self):
-        return "state %s, line num %s: '%s'" % (self.state, self.lineno, self.line)
+        return "state %s, line num %s: '%s'" % (
+            self.state, self.lineno, self.line)
+
 
 def _find_language(languages, kind):
     if isinstance(languages, string_types):
@@ -45,7 +50,8 @@ def _find_language(languages, kind):
 
     if len(languages) != 1:
         raise TypeError(
-            'Exactly one language at a time is supported for gettext %s.' % (kind,))
+            'Exactly one language at a time is supported for gettext %s.' %
+            (kind,))
 
     return languages[0]
 
@@ -54,7 +60,6 @@ def _find_language(languages, kind):
 class GettextExportFilter(object):
 
     __used_for__ = ILocalTranslationDomain
-
 
     def __init__(self, domain):
         self.domain = domain
@@ -107,7 +112,6 @@ class GettextImportFilter(object):
             self.domain.addMessage(msgid, msgstr, language)
 
 
-
 def extractCharset(header):
     charset = header.split(b'charset=')[-1]
     if not isinstance(charset, str):
@@ -139,8 +143,8 @@ def parseGetText(content):
     COM, MSGID, MSGSTR = [], [], []
     while pointer < len(content):
         line = content[pointer]
-        #print 'STATE:', state
-        #print 'LINE:', line, content[pointer].strip()
+        # print 'STATE:', state
+        # print 'LINE:', line, content[pointer].strip()
         if state == 0:
             COM, MSGID, MSGSTR = [], [], []
             if com.match(line):

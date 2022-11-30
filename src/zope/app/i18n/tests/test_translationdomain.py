@@ -14,35 +14,29 @@
 """This module tests the regular persistent Translation Domain.
 
 """
-import unittest
 import doctest
-
-from zope.component import getGlobalSiteManager
-from zope.component import provideUtility
-from zope.component import provideAdapter
-from zope.component.interfaces import IFactory
-from zope.component.factory import Factory
-from zope.i18n.interfaces import ITranslationDomain
-
-from zope.i18n.tests import test_itranslationdomain
-from zope.i18n.translationdomain \
-     import TranslationDomain as GlobalTranslationDomain
-
-from zope.interface.verify import verifyObject
-from zope.traversing.api import traverse
-
+import unittest
 
 from zope.app.component.testing import PlacefulSetup
 from zope.app.component.testing import createSiteManager
-
+from zope.component import getGlobalSiteManager
+from zope.component import provideAdapter
+from zope.component import provideUtility
+from zope.component.factory import Factory
+from zope.component.interfaces import IFactory
+from zope.i18n.interfaces import ITranslationDomain
+from zope.i18n.tests import test_itranslationdomain
+from zope.i18n.translationdomain import \
+    TranslationDomain as GlobalTranslationDomain
+from zope.interface import Interface
+from zope.interface.interfaces import IComponentLookup
+from zope.interface.verify import verifyObject
+from zope.site.site import SiteManagerAdapter
+from zope.traversing.api import traverse
 
 from zope.app.i18n import interfaces
 from zope.app.i18n.messagecatalog import MessageCatalog
 from zope.app.i18n.translationdomain import TranslationDomain
-
-from zope.site.site import SiteManagerAdapter
-from zope.interface.interfaces import IComponentLookup
-from zope.interface import Interface
 
 
 def setUpSiteManagerLookup():
@@ -63,13 +57,13 @@ class AbstractTestILocalTranslationDomainMixin(object):
         domain = self._domain
         langs = self._getLanguages(domain)
         domain.addLanguage('es')
-        self.assertEqual(self._getLanguages(domain), langs+['es'])
+        self.assertEqual(self._getLanguages(domain), langs + ['es'])
         domain.addLanguage('fr')
-        self.assertEqual(self._getLanguages(domain), langs+['es', 'fr'])
+        self.assertEqual(self._getLanguages(domain), langs + ['es', 'fr'])
         self.assertEqual(domain.getAvailableLanguages(),
-                         langs+['es', 'fr'])
+                         langs + ['es', 'fr'])
         domain.deleteLanguage('es')
-        self.assertEqual(self._getLanguages(domain), langs+['fr'])
+        self.assertEqual(self._getLanguages(domain), langs + ['fr'])
         domain.deleteLanguage('fr')
         self.assertEqual(self._getLanguages(domain), langs)
 
@@ -107,7 +101,6 @@ class AbstractTestISyncTranslationDomainMixin(object):
         {'domain': 'default', 'language': 'en', 'msgid': 'greeting',
          'msgstr': 'Hello $name, how are you?', 'mod_time': 0}]
 
-
     local_messages = [
         # This message is older than the foreign one.
         {'domain': 'default', 'language': 'de', 'msgid': 'short_greeting',
@@ -121,8 +114,7 @@ class AbstractTestISyncTranslationDomainMixin(object):
         # This message is only available locally.
         {'domain': 'default', 'language': 'de', 'msgid': 'greeting',
          'msgstr': 'Hallo $name, wie geht es Dir?', 'mod_time': 0},
-        ]
-
+    ]
 
     def testInterface(self):
         verifyObject(interfaces.ISyncTranslationDomain, self._domain)
@@ -142,10 +134,10 @@ class AbstractTestISyncTranslationDomainMixin(object):
         self.assertEqual(mapping[('greeting', 'de')],
                          (None, self.local_messages[3]))
 
-
     def testSynchronize(self):
         domain = self._domain
-        mapping = domain.getMessagesMapping(['de', 'en'], self.foreign_messages)
+        mapping = domain.getMessagesMapping(
+            ['de', 'en'], self.foreign_messages)
         domain.synchronize(mapping)
 
         self.assertEqual(domain.getMessage('test', 'en'),
@@ -240,6 +232,7 @@ class TestTranslationDomain(
         self.assertEqual(messages,
                          self._domain.getMessages())
 
+
 class TestTranslationDomainInAction(unittest.TestCase):
 
     def setUp(self):
@@ -252,7 +245,6 @@ class TestTranslationDomainInAction(unittest.TestCase):
         import zope.i18n.negotiator
         provideUtility(zope.i18n.negotiator.negotiator,
                        zope.i18n.interfaces.INegotiator)
-
 
         gsm = getGlobalSiteManager()
         de_catalog = MessageCatalog('de', 'default')
@@ -273,7 +265,10 @@ class TestTranslationDomainInAction(unittest.TestCase):
 
         mgr = createSiteManager(traverse(self.rootFolder, 'folder1'))
         mgr['default']['default'] = td
-        mgr.registerUtility(mgr['default']['default'], ITranslationDomain, 'default')
+        mgr.registerUtility(
+            mgr['default']['default'],
+            ITranslationDomain,
+            'default')
 
         self.trans1 = td
         self.trans = domain
@@ -320,6 +315,3 @@ def test_suite():
         unittest.defaultTestLoader.loadTestsFromName(__name__),
         doctest.DocTestSuite('zope.app.i18n.translationdomain'),
     ))
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='test_suite')

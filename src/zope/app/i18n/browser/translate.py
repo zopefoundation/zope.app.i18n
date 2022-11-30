@@ -18,6 +18,7 @@ __docformat__ = 'restructuredtext'
 
 from zope.app.i18n.browser import BaseView
 
+
 class Translate(BaseView):
 
     def getMessages(self):
@@ -29,16 +30,13 @@ class Translate(BaseView):
 
         return messages
 
-
     def getTranslation(self, msgid, target_lang):
         return self.context.translate(msgid, target_language=target_lang)
-
 
     def getEditLanguages(self):
         '''get the languages that are selected for editing'''
         languages = self.request.cookies.get('edit_languages', '')
         return filter(None, languages.split(','))
-
 
     def editMessage(self):
         msg_id = self.request['msg_id']
@@ -49,14 +47,13 @@ class Translate(BaseView):
                 self.context.updateMessage(msg_id, msg, language)
         return self.request.response.redirect(self.request.URL[-1])
 
-
     def editMessages(self):
         # Handle new Messages
         for count in range(5):
-            msg_id = self.request.get('new-msg_id-%i' %count, '')
+            msg_id = self.request.get('new-msg_id-%i' % count, '')
             if msg_id:
                 for language in self.getEditLanguages():
-                    msg = self.request.get('new-%s-%i' %(language, count),
+                    msg = self.request.get('new-%s-%i' % (language, count),
                                            msg_id)
                     self.context.addMessage(msg_id, msg, language)
 
@@ -65,19 +62,18 @@ class Translate(BaseView):
                 for k in self.request.keys()
                 if k.startswith('edit-msg_id-')]
         for key in keys:
-            msg_id = self.request['edit-msg_id-'+key]
+            msg_id = self.request['edit-msg_id-' + key]
             for language in self.getEditLanguages():
-                msg = self.request['edit-%s-%s' %(language, key)]
+                msg = self.request['edit-%s-%s' % (language, key)]
                 if msg != self.context.translate(msg_id,
                                                  target_language=language):
                     self.context.updateMessage(msg_id, msg, language)
 
         return self.request.response.redirect(self.request.URL[-1])
 
-
     def deleteMessages(self, message_ids):
         for id in message_ids:
-            msgid = self.request.form['edit-msg_id-%s' %id]
+            msgid = self.request.form['edit-msg_id-%s' % id]
             for language in self.context.getAvailableLanguages():
                 # Some we edit a language, but no translation exists...
                 try:
@@ -86,23 +82,19 @@ class Translate(BaseView):
                     pass
         return self.request.response.redirect(self.request.URL[-1])
 
-
     def addLanguage(self, language):
         self.context.addLanguage(language)
         return self.request.response.redirect(self.request.URL[-1])
-
 
     def changeEditLanguages(self, languages=()):
         self.request.response.setCookie('edit_languages',
                                         ','.join(languages))
         return self.request.response.redirect(self.request.URL[-1])
 
-
     def changeFilter(self):
         filter = self.request.get('filter', '%')
         self.request.response.setCookie('filter', filter)
         return self.request.response.redirect(self.request.URL[-1])
-
 
     def deleteLanguages(self, languages):
         for language in languages:

@@ -17,10 +17,11 @@
 import unittest
 
 from zope.component.interfaces import IFactory
-from zope.interface.verify import verifyObject
-from zope.app.i18n.messagecatalog import MessageCatalog
-from zope.app.i18n.interfaces import ILocalMessageCatalog
 from zope.i18n.tests import test_imessagecatalog
+from zope.interface.verify import verifyObject
+
+from zope.app.i18n.interfaces import ILocalMessageCatalog
+from zope.app.i18n.messagecatalog import MessageCatalog
 
 
 class TestLocalMessageCatalog(test_imessagecatalog.TestIMessageCatalog):
@@ -72,14 +73,12 @@ class TestLocalMessageCatalog(test_imessagecatalog.TestIMessageCatalog):
 
     def testGetMessageIds(self):
         catalog = self._catalog
-        ids = catalog.getMessageIds()
-        ids.sort()
+        ids = sorted(catalog.getMessageIds())
         self.assertEqual(ids, ['greeting', 'short_greeting'])
 
     def testGetMessages(self):
         catalog = self._catalog
-        ids = catalog.getMessageIds()
-        ids.sort()
+        ids = sorted(catalog.getMessageIds())
         self.assertEqual(ids, ['greeting', 'short_greeting'])
 
 
