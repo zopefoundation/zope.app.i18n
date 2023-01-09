@@ -15,24 +15,23 @@
 Translation Domain.
 
 """
-import unittest
 import time
+import unittest
 from io import BytesIO
 
-from zope.component.testing import PlacelessSetup
-from zope.component.interfaces import IFactory
-from zope.component.factory import Factory
 from zope.component import provideUtility
-
-from zope.app.i18n.messagecatalog import MessageCatalog
-from zope.i18n.negotiator import negotiator
+from zope.component.factory import Factory
+from zope.component.interfaces import IFactory
+from zope.component.testing import PlacelessSetup
 from zope.i18n.interfaces import INegotiator
+from zope.i18n.negotiator import negotiator
 
-from zope.app.i18n.translationdomain import TranslationDomain
-from zope.app.i18n.filters import GettextImportFilter
 from zope.app.i18n.filters import GettextExportFilter
+from zope.app.i18n.filters import GettextImportFilter
 from zope.app.i18n.filters import ParseError
 from zope.app.i18n.filters import parseGetText
+from zope.app.i18n.messagecatalog import MessageCatalog
+from zope.app.i18n.translationdomain import TranslationDomain
 
 
 GETTEXT_IMPORT_DATA = b'''
@@ -58,6 +57,7 @@ msgid "greeting"
 msgstr "hallo"
 # comment
 '''
+
 
 class TestGettextExportImport(PlacelessSetup, unittest.TestCase):
 
@@ -142,7 +142,3 @@ class TestParseError(unittest.TestCase):
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)
-
-
-if __name__ == '__main__':
-    unittest.TextTestRunner().run(test_suite())

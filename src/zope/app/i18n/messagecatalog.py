@@ -16,14 +16,18 @@
 """
 __docformat__ = 'restructuredtext'
 
-from zope.interface import provider, providedBy, implementer
 import time
 
 from BTrees.OOBTree import OOBTree
 from persistent import Persistent
 from zope.component.interfaces import IFactory
+from zope.interface import implementer
+from zope.interface import providedBy
+from zope.interface import provider
+
 from zope.app.i18n.interfaces import ILocalMessageCatalog
 from zope.app.i18n.interfaces import NotYetImplementedError
+
 
 @implementer(ILocalMessageCatalog)
 @provider(IFactory)
@@ -31,7 +35,7 @@ class MessageCatalog(Persistent):
 
     def __init__(self, language, domain="default"):
         """Initialize the message catalog"""
-        self.id  = ''
+        self.id = ''
         self.title = ''
         self.description = ''
         self.language = language
@@ -66,11 +70,11 @@ class MessageCatalog(Persistent):
     def getFullMessage(self, msgid):
         'See `IWriteMessageCatalog`'
         message = self._messages[msgid]
-        return {'domain'   : self.domain,
-                'language' : self.language,
-                'msgid'    : msgid,
-                'msgstr'   : message[0],
-                'mod_time' : message[1]}
+        return {'domain': self.domain,
+                'language': self.language,
+                'msgid': msgid,
+                'msgstr': message[0],
+                'mod_time': message[1]}
 
     def setMessage(self, msgid, message, mod_time=None):
         'See `IWriteMessageCatalog`'
@@ -90,11 +94,11 @@ class MessageCatalog(Persistent):
         'See `IWriteMessageCatalog`'
         messages = []
         for message in self._messages.items():
-            messages.append({'domain'   : self.domain,
-                             'language' : self.language,
-                             'msgid'    : message[0],
-                             'msgstr'   : message[1][0],
-                             'mod_time' : message[1][1]})
+            messages.append({'domain': self.domain,
+                             'language': self.language,
+                             'msgid': message[0],
+                             'msgstr': message[1][0],
+                             'mod_time': message[1][1]})
         return messages
 
     @classmethod

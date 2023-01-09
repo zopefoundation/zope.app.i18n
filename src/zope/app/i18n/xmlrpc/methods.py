@@ -18,6 +18,7 @@ __docformat__ = 'restructuredtext'
 
 from zope.publisher.xmlrpc import XMLRPCView
 
+
 class Methods(XMLRPCView):
 
     def getAllLanguages(self):

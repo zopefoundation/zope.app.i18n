@@ -15,4 +15,4 @@
 """
 
 # BBB
-from zope.i18nmessageid import ZopeMessageFactory
+from zope.i18nmessageid import ZopeMessageFactory  # noqa: F401 unused

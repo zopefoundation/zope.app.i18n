@@ -15,8 +15,11 @@
 """
 __docformat__ = 'restructuredtext'
 
+from zope.i18n.interfaces import IMessageExportFilter
+from zope.i18n.interfaces import IMessageImportFilter
+
 from zope.app.i18n.browser import BaseView
-from zope.i18n.interfaces import IMessageExportFilter, IMessageImportFilter
+
 
 class ExportImport(BaseView):
 
