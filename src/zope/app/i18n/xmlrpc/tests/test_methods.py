@@ -23,7 +23,7 @@ from zope.app.i18n.xmlrpc.methods import Methods
 class TestMethods(unittest.TestCase):
 
     def setUp(self):
-        super(TestMethods, self).setUp()
+        super().setUp()
 
         domain = self._domain = TranslationDomain()
         domain.domain = 'default'

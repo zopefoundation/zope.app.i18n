@@ -35,7 +35,7 @@ class TestExportImport(unittest.TestCase):
     data = GETTEXT_IMPORT_DATA
 
     def setUp(self):
-        super(TestExportImport, self).setUp()
+        super().setUp()
 
         self._domain = TranslationDomain()
         self._domain.domain = 'default'

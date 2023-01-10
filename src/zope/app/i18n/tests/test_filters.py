@@ -64,7 +64,7 @@ class TestGettextExportImport(PlacelessSetup, unittest.TestCase):
     _data = GETTEXT_IMPORT_DATA
 
     def setUp(self):
-        super(TestGettextExportImport, self).setUp()
+        super().setUp()
 
         # Setup the negotiator utility
         provideUtility(negotiator, INegotiator)
@@ -103,7 +103,7 @@ class TestParseGetText(unittest.TestCase):
 
     def setUp(self):
         self._domain = TranslationDomain()
-        super(TestParseGetText, self).setUp()
+        super().setUp()
 
     def _check_error(self, data, state):
         with self.assertRaises(ParseError) as exc:

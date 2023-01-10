@@ -40,7 +40,7 @@ class ParseError(Exception):
         self.line = line
 
     def __str__(self):
-        return "state %s, line num %s: '%s'" % (
+        return "state {}, line num {}: '{}'".format(
             self.state, self.lineno, self.line)
 
 
@@ -57,7 +57,7 @@ def _find_language(languages, kind):
 
 
 @implementer(IMessageExportFilter)
-class GettextExportFilter(object):
+class GettextExportFilter:
 
     __used_for__ = ILocalTranslationDomain
 
@@ -88,7 +88,7 @@ class GettextExportFilter(object):
 
 
 @implementer(IMessageImportFilter)
-class GettextImportFilter(object):
+class GettextImportFilter:
 
     __used_for__ = ILocalTranslationDomain
 

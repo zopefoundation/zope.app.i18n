@@ -45,7 +45,7 @@ class Translate(_Translate):
 class TranslateTest(PlacelessSetup, unittest.TestCase):
 
     def setUp(self):
-        super(TranslateTest, self).setUp()
+        super().setUp()
 
         # Setup the registries
         provideAdapter(HTTPCharsets, (IHTTPRequest,), IUserPreferredCharsets)
@@ -211,13 +211,13 @@ class TestSynchronize(unittest.TestCase):
         self.assertEqual({}, s.queryMessages())
         self.assertEqual([], s.queryMessageItems())
 
-        self.assertEqual(u'Does not exist', s.getStatus(None, None))
-        self.assertEqual(u'New Remote', s.getStatus({}, None))
-        self.assertEqual(u'Out of Date', s.getStatus(
+        self.assertEqual('Does not exist', s.getStatus(None, None))
+        self.assertEqual('New Remote', s.getStatus({}, None))
+        self.assertEqual('Out of Date', s.getStatus(
             {'mod_time': 1}, {'mod_time': 0}))
-        self.assertEqual(u'Newer Local', s.getStatus(
+        self.assertEqual('Newer Local', s.getStatus(
             {'mod_time': 0}, {'mod_time': 1}))
-        self.assertEqual(u'Up to Date', s.getStatus(
+        self.assertEqual('Up to Date', s.getStatus(
             {'mod_time': 1}, {'mod_time': 1}))
 
         s.saveSettings()
@@ -229,7 +229,7 @@ class TestSynchronize(unittest.TestCase):
         del s.queryMessages
 
         # Now stub out the connection
-        class Stub(object):
+        class Stub:
             def getAllLanguages(self):
                 return ('en',)
 
