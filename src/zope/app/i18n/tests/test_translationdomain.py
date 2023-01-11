@@ -44,7 +44,7 @@ def setUpSiteManagerLookup():
                    IComponentLookup)
 
 
-class AbstractTestILocalTranslationDomainMixin(object):
+class AbstractTestILocalTranslationDomainMixin:
 
     def testInterface(self):
         verifyObject(ITranslationDomain, self._domain)
@@ -85,7 +85,7 @@ class AbstractTestILocalTranslationDomainMixin(object):
 
 
 # A test mixing -- don't add this to the suite
-class AbstractTestISyncTranslationDomainMixin(object):
+class AbstractTestISyncTranslationDomainMixin:
 
     foreign_messages = [
         # Message that is not locally available
@@ -118,7 +118,7 @@ class AbstractTestISyncTranslationDomainMixin(object):
 
     def testInterface(self):
         verifyObject(interfaces.ISyncTranslationDomain, self._domain)
-        super(AbstractTestISyncTranslationDomainMixin, self).testInterface()
+        super().testInterface()
 
     def testGetMessagesMapping(self):
         mapping = self._domain.getMessagesMapping(['de', 'en'],
@@ -166,7 +166,7 @@ class TestTranslationDomain(
         self.sm = psetup.setUp(True, True)
         self.rootFolder = psetup.rootFolder
 
-        super(TestTranslationDomain, self).setUp()
+        super().setUp()
         setUpSiteManagerLookup()
 
         self.sm.registerUtility(self._domain, ITranslationDomain, 'default')

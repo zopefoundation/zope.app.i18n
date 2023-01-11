@@ -42,7 +42,7 @@ except NameError:
 class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
 
     def __init__(self):
-        super(TranslationDomain, self).__init__()
+        super().__init__()
         self._catalogs = OOBTree()
         self.domain = '<domain not activated>'
 
@@ -58,13 +58,13 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
 
     def __setitem__(self, name, object):
         'See IWriteContainer'
-        super(TranslationDomain, self).__setitem__(name, object)
+        super().__setitem__(name, object)
         self._registerMessageCatalog(object.language, name)
 
     def __delitem__(self, name):
         'See IWriteContainer'
         object = self[name]
-        super(TranslationDomain, self).__delitem__(name)
+        super().__delitem__(name)
         self._unregisterMessageCatalog(object.language, name)
 
     def translate(self, msgid, mapping=None, context=None,
@@ -87,7 +87,7 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
             catalog_names = []
 
         for name in catalog_names:
-            catalog = super(TranslationDomain, self).__getitem__(name)
+            catalog = super().__getitem__(name)
             # TODO: handle msgid_plural
             text = catalog.queryMessage(msgid)
             if text is not None:
@@ -172,7 +172,7 @@ class TranslationDomain(BTreeContainer, SimpleTranslationDomain, Contained):
 
     def addLanguage(self, language):
         'See `IWriteTranslationDomain`'
-        catalog = zope.component.createObject(u'zope.app.MessageCatalog',
+        catalog = zope.component.createObject('zope.app.MessageCatalog',
                                               language)
         catalog.domain = self.domain
         self[language] = catalog

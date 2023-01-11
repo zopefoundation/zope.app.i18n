@@ -16,23 +16,11 @@
 """
 __docformat__ = 'restructuredtext'
 
-try:
-    import httplib  # noqa: F401 imported but unused
-    from xmlrpclib import Server  # noqa: F401 imported but unused
-except ImportError:  # PY3
-    from xmlrpc.client import ServerProxy as Server
-
-try:
-    from urllib import quote
-    from urllib import unquote
-
-    from urlparse import urlparse
-    from urlparse import urlunparse
-except ImportError:  # PY3
-    from urllib.parse import unquote
-    from urllib.parse import quote
-    from urllib.parse import urlparse
-    from urllib.parse import urlunparse
+from urllib.parse import quote
+from urllib.parse import unquote
+from urllib.parse import urlparse
+from urllib.parse import urlunparse
+from xmlrpc.client import ServerProxy
 
 import zope.i18nmessageid
 from zope.security.proxy import removeSecurityProxy
@@ -83,7 +71,7 @@ class Synchronize(BaseView):
         '''Connect to the remote server via XML-RPC HTTP; return status'''
 
         # Now try to connect
-        self._connection = Server(self._make_sync_url())
+        self._connection = ServerProxy(self._make_sync_url())
 
         # check whether the connection was made and the Master Babel Tower
         # exists
