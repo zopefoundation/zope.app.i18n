@@ -65,6 +65,7 @@ setup(name='zope.app.i18n',
       packages=find_packages('src'),
       package_dir={'': 'src'},
       namespace_packages=['zope', 'zope.app'],
+      python_requires='>=3.7',
       extras_require={
           'test': [
               'zope.app.component',
